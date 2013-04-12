@@ -1,0 +1,50 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}{{ testplan.title }}{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+<style>
+#tab_testcases{ padding-left:5px;}
+#tab_testruns {padding-left:5px;}
+</style>
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/prototype.ajax_upload.js'></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/testplan_actions.js"></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testcase_actions.js'></script>
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.TestPlans.Details.on_load);
+</script>
+{% endblock %}
+
+{% block contents %}
+
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>> <a href="{% url tcms.apps.testplans.views.all %}">Planning</a>
+		>> <a href="{{ test_plan.get_absolute_url }}">{{ testplan.name }}</a>
+		>> Manage Attachment
+	</div>
+	<input id="id_plan_id" type="hidden" name="plan_id" value="{{ testplan.plan_id }}">
+	<h2>{{ testplan.name }}</h2>
+	<div class="planDetail">
+		<form action="{{ test_plan.get_absolute_url }}" method="POST" enctype="multipart/form-data">
+			<div  class="right-bar" >
+				<label class="errors" id="import-error">{{ xml_form.xml_file.errors }}</label>	
+				 {{ xml_form.action }}
+				<label><b>Import XML file:</b></</label>
+				{{ xml_form.xml_file }}
+				<input type="submit" value="Import" />
+				<br/>
+				<label class="help">{{ xml_form.xml_file.help_text }}
+			</div>
+		</form>
+	</div>
+</div>
+
+{% endblock %}

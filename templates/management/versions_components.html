@@ -1,0 +1,109 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}Product Management{% endblock %}
+
+{% block custom_stylesheet %}
+
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src='/static/skins/danqing/js/management_actions.js'></script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+    <div class="sprites crumble">
+        <a href="{% url tcms.core.views.index %}">Home</a>
+        >> <a href="{% url tcms.apps.management.views.management_index %}">...</a>
+        >> Products
+    </div>
+    <div class="control-bar">
+        <ul>
+            <li class="addlink"><a href="{% url tcms.apps.management.views.classification_new %}">New Classification</a></li>
+            <li class="addlink"><a href="{% url tcms.apps.management.views.product_new %}">New Product</a></li>
+            <li class="addlink"><a href="{% url tcms.apps.management.views.milestone_new %}">New Milestone</a></li>
+            <li class="addlink"><a href="{% url tcms.apps.management.views.build_new %}">New Build</a></li>
+            <li class="addlink"><a href="{% url tcms.apps.management.views.case_category_new %}">New Category</a></li>
+        </ul>
+    </div>
+    <table class="itemList product"  border="0" cellspacing="0" cellspan="0">
+        <thead>
+            <tr>
+                <th width="25%">Product</th>
+                <th width="20%">Milestone</th> 
+                <th>Build</th>
+                <th>CaseCategory</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if classifications %}
+            {% for classification in classifications %}
+            <tr class="classification">
+                <td colspan="4">
+                    <b>Classification :</b> <a class="editlink" href="{% url tcms.apps.management.views.classification_edit classification.id %}">{{ classification.name }}</a>{% if classification.description %} - {{ classification.description }}{% endif %}
+                   
+                </td>
+            </tr>
+            {% if classification.product.all %}
+            {% for product in classification.product.all %}
+            <tr class="evenRow" >
+                <th>
+                    <a href="{% url tcms.apps.management.views.product_edit product.id %}" class="editlink">{{ product.name }}</a>
+                    <br />
+                    {% if product.description %}<span class="description">{{ product.description }}</span>{% endif %}
+                    <!--
+                    <a id="blind_link_{{ forloop.counter }}" href="javascript:blinddownProductContent({{ forloop.counter }}, {{ product.id }})">
+                    <img id="blind_icon_{{ forloop.counter }}" src="/static/skins/danqing/style/images/t1.png" border="0" alt="" />
+                    </a>
+                    -->
+                </th>
+                {# <td id="id_default_milstone_of_{{ product.id }}">{{ product.defaultmilestone }}</td> #}
+                <td colspan="2" style="border-right:1px solid #ccc;">
+                    <div  id="hidenRow_{{ product.id }}"  >
+                        <div class="milestone">
+                            {% for milestone in product.milestone.all %}
+                            <div >
+                                <ul class="milestone-list">
+                                    <li>
+                                        <a  href="{% url tcms.apps.management.views.milestone_edit milestone.id %}">{{ milestone.name }} </a>
+                                       
+                                    </li>
+                                    {% for build in builds %}
+                                    {% ifequal product.id build.product.id %}
+                                    {% ifequal milestone.name build.milestone %}
+                                    <ul class="build-list" >
+                                        {% if build.is_active %}
+                                        <li>
+                                           <a href="{% url tcms.apps.management.views.build_edit build.build_id %}"> {{ build.name }}</a>
+                                        </li>
+                                        {% else %}
+                                        <li>
+                                            <a href="{% url tcms.apps.management.views.build_edit build.build_id %}"><label class="disabled_build">{{ build.name }}</label></a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                    {% endifequal %}
+                                    {% endifequal %}
+                                    {% endfor %}
+                                </li>
+                            </div>
+                            {% endfor %}
+                        </div>  
+                    </td>
+                    <td style="vertical-align:top">
+                             <ul>
+                            {% for case_category in product.case_category.all %}
+                                 <li><a href="{% url tcms.apps.management.views.case_category_edit case_category.category_id %}">{{ case_category.name }}</a></li>
+                             {% endfor %}
+                             </ul>
+                    </td>
+                </tr>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends "tcms_base.html" %}
+
+{% load split_as_option %}
+
+{% block subtitle %}Create new test review{% endblock %}
+
+{% block custom_stylesheet %}
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablekit/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablekit/tablekit.js"></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/tablednd.js'></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testcase_actions.js'></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testreview_actions.js'></script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>> <a href="{% url tcms.apps.testplans.views.all %}">Plans</a>
+		>> <a href="{{ testplan.get_absolute_url }}">{{ testplan.plan_id}}:{{ testplan }}</a>
+		>> New Test Review
+	</div>
+	<h2>Create New Test Review</h2>
+	<form action="{% url tcms.apps.testreviews.views.new testplan.plan_id %}" method="post">
+		<div class="Detailform border-1">
+			<table class="editor" cellspan="0" cellspacing="0">
+				<tr>
+					<td width="15%"><label class="strong">Summary</label></td>
+					<td>
+						<span class="name summary">{{ form.summary }}</span>
+						<div class="errors">{{ form.summary.errors }}</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="15%"><label>Product</label></td>
+					<td>{{ testplan.product.name }}</td>
+				</tr>
+				<tr>
+					<td><label>Product Version</label></td>
+					<td>{{ testplan.default_product_version }}</td>
+				</tr>
+				<tr>
+					<td><label class="strong">Build </label></td>
+					<td>{{ form.build }}<div class="errors">{{ form.build.errors }}</div></td>
+				</tr>
+				<tr>
+					<td><label>Reviewer</label></td>
+					<td>{{ form.default_reviewer }} <div class="errors">{{ form.default_reviewer.errors }}</div></td>
+				</tr>
+				<tr>
+					<td><label>Notes</label></td>
+					<td>{{ form.notes }}</td>
+				</tr>
+				<tr>
+					<td><label>Environment</label></td>
+					<td>
+						{% for env_group in testplan.env_group.all %}
+						<fieldset class="">
+							<legend>Environment Group: {{ env_group.name }}</legend>
+							<ul class="ul-no-format">
+								{% for property in env_group.property.all %}
+								<li>
+									<input type="checkbox" name="select_property_id_{{ property.id }}" checked>
+									<label class="lab-100">{{ property.name }}</label>
+									<select name="select_property_value_{{ property.id }}">
+										{% for value in property.value.all %}
+										<option value="{{ value.id }}">{{ value.value }}</option>
+										{% endfor %}
+									</select>
+								</li>
+								{% empty%}
+								<div class="system_help">
+									<p>This environment group has no property yet. For set environment for test review,<br/>please add some properties to this environment group , <br/>or change environment group for test plan(<a href="{{ testplan.get_absolute_url }}">{{ testplan.plan_id}}:{{ testplan }}).
+									</p>
+								</div>
+								{% endfor %}
+							</ul>
+						</fieldset>
+						{% empty%}
+						<div class="system_help">
+							<p>
+								If need to set environment for this test review, please select <b> environment group</b> for the test plan ( <a href="{{ test_plan.get_absolute_url }}">{{ testplan.plan_id }}</a>:{{ testplan }}) .If you haven't permission to edit this plan, please contact with the author of this plan.
+							</p>
+						</div>
+						{% endfor %}
+					</td>
+				</tr>
+			</table>
+			<div class="submit-row ">
+				{{ form.errors }}
+				<input type="submit" name="" value="Save">
+				<input type="button" name="cancel" value="cancel" onclick="history.go(-1);">
+			</div>
+		</div>
+	</div>
+	{% if testcases %}
+	<div class="Detailform border-1" id="testcases_selected">
+		<div class="mixbar">
+			<span class="tit"><b>Selected cases:</b></span>
+			<span class="notice">
+				{% if num_confirmed_cases %}
+				<img src="{{ MEDIA_URL }}/images/warning.png" style="float:none"/>
+				{{ num_confirmed_cases }} confirmed cases removed
+				{% endif %}
+			</span>
+		</div>
+		<table id="testcases" class="list" cellpadding="0" cellspacing="0" border="0" >
+			<thead>
+				<tr>
+					<th class="nosort"align="left" width="4%"	></th>
+					<th class="number" align="left" width="4%" >#</th>
+					<th class="text" align="left" width="26%" >Test Case Summary</th>
+					<th class="text" align="left" width="20%">Author</th>
+					<th class="date-iso" align="left" width="20%">Created Date</th>
+					<th class="sortable" align="left" width="12%">Status</th>
+					<th class="text" align="left" width="8%">Category</th>
+					<th class="text" align="left"  width="8%" >Priority</th>
+					<th class="sortable" align="left" width="10%">Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for testcase in testcases %}
+				<tr id="id_tr_case_{{ forloop.counter }}" class="{% cycle 'odd' 'even' %}" onclick="toggleTestCaseContents('{{ forloop.counter }}')">
+					<td>
+						<input type="hidden" name="case_id" value="{{ testcase.case_id }}">
+						<a id="blind_link_{{ forloop.counter }}" class="blind_link">
+							<img id="blind_icon_{{ forloop.counter }}" src="{{ MEDIA_URL }}/images/t1.gif" border="0" alt="">
+						</a>
+					</td>
+					<td>
+						<a href="/case/{{ testcase.case_id }}/">{{ testcase.case_id }}</a>
+					</td>
+					{% if not testcase.case_status.is_confirmed %}
+					<td>
+						<a id="link_{{ forloop.counter }}" class="blind_title_link">
+							{{ testcase.summary }}
+						</a>
+						<input type="hidden" name="case" value="{{ testcase.case_id }}">
+					</td>
+					{% else %}
+					<td style='text-decoration: line-through'>
+						<img src="{{ MEDIA_URL }}/images/warning.png"/>
+						<a id="link_{{ forloop.counter }}" class="blind_title_link">
+							{{ testcase.summary }}
+						</a>
+					</td>
+					{% endif %}
+					<td>{{ testcase.author.email }}</td>
+					<td>{{ testcase.create_date }}</td>
+					<td>{{ testcase.case_status }}</td>
+					<td>{{ testcase.category }}</td>
+					<td>{{ testcase.priority }}</td>
+					<td> 
+						<a class="deletelink" href="javascript:removeItem('row_{{ forloop.counter }}');">
+							remove
+						</a>
+					</td>
+				</tr>
+				<tr class="hide"  id="hidenRow_{{ forloop.counter }}" class="Detailform border-1" style="display: none;">
+					<td colspan="6">
+						<div id="id_case_text_{{ forloop.counter }}">
+							<div class="ajax_loading"></div>
+						</div>
+					</td>
+					<td colspan="3" class="right_panel" valign="top">
+						<h4><span class="title strong">Attachment:</span></h4>
+						<ul class="ul-no-format">
+							{% for attachment_file in testcase.attachment.all %}
+							<li>
+								<a href="{% url tcms.core.files.check_file attachment_file.attachment_id %}">
+									{{ attachment_file.file_name }}
+								</a>
+							</li>
+							{% endfor %}
+						</ul>
+						<h4><span class="title strong">Component:</span></h4>
+						<ul class="ul-no-format">
+							{% for component in testcase.case.component.all %}
+							<li id="display_component" >{{ component.name }}</li>
+							{% endfor %}
+						</ul>
+						<h4><span class="title strong">Tag:</span></h4>
+						<ul class="ul-no-format">
+							{% for tag in testcase.tag.all %}
+							<li>{{ tag }}</li>
+							{% empty %}
+							No tag found
+						</ul>
+						{% endfor %}
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% else %}
+		<span class="prompt-message">
+			<center>
+				No testcase in this testrun , you may 
+				<a href="">
+					<strong>Select Cases </strong>
+				</a>
+				from test plan.
+			</center>
+		</span>
+		<script type="text/javascript">
+		var msg = "No valid cases are selected. Please select some cases or confirm selected ones before creating a run."
+		alert(msg);
+		window.history.go(-1);
+		</script>
+		{% endif %}
+	</div>
+</form>
+{% endblock %}

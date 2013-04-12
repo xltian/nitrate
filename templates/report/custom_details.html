@@ -1,0 +1,284 @@
+{% extends "tcms_base.html" %}
+
+{% load comments %}
+{% load report_tags %}
+{% load redhat_urlize %}
+
+{% block subtitle %}Reporting{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/report.js"></script>
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.Report.CustomDetails.on_load);
+</script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble"><a href="{% url tcms.core.views.index %}">Home</a> >> <a href="{% url tcms.report.views.custom_search %}">Custom</a> >> {% for build in builds %}{{ build }}{% endfor %}</div>
+	<div class="report_title_bg">
+		<form action="{% url tcms.report.views.custom_details %}">
+			{{ form.product.label }}: {{ form.product }}<br />
+			{{ form.pk__in.label }}: {{ form.pk__in }}<br />
+			<input type="submit" value="Submit" />
+		</form>
+	</div>
+    <table cellpadding="0" cellspacing="0" class="table_noborder" border="0">
+    	{% for build in builds %}
+        <tr>
+            <td><strong>{{ build }}</strong>Plan<span class="red">{{ build.plans_count|default_if_none:0 }}</span> Run<span class="red">{{ build.runs_count|default_if_none:0 }}</span>Manual Cases<span class="red">{{manual_count|percentage:total_count}}({{manual_count}}/{{total_count}})</span>Automated Cases<span class="red">{{auto_count|percentage:total_count}}({{auto_count}}/{{total_count}})</span>Manual/Automated<span class="red">{{both_count|percentage:total_count}}({{both_count}}/{{total_count}})</span></td>
+            <td width="110">Passed Case-Run</td>
+            <td width="100"><div class="progress-bar">
+                <div class="progress-inner" style="width:auto;	margin-right:-50px;text-align:cente">
+                    <div class="progress-passed" style="width:{{ build.get_case_runs_passed_percent|floatformat:0 }}px;">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="percent">{{ build.get_case_runs_passed_percent|floatformat }}% ({{ build.case_runs_passed_count }})</div>
+            </div></td>
+            <td width="100">Failed Case-Run</td>
+            <td width="100">
+             <div class="progress-bar">
+                <div class="progress-inner" style="width:auto;	margin-right:-50px;text-align:cente">
+                    <div class="progress-failed" style="width:{{ build.case_runs_failed_percent|floatformat:0 }}px;">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="percent">{{ build.case_runs_failed_percent|floatformat }}% ({{ build.case_runs_failed_count }})</div>
+            </div>
+            </td>
+            <td >&nbsp;</td>
+        </tr>
+       {% endfor %} 
+    </table>
+	<table class="table_style" cellpadding="0" cellspacing="0" border="0" width="100%" id="id_table_cases" >
+		<thead>
+			<tr>
+				<th align="left" class="sortcol sortdesc" >Plan name</th>
+				<th align="left" class="sortcol">Run name</th>
+				<th align="left" class="sortcol" width="40">Idle</th>
+				<th align="left" class="sortcol" width="70">Running</th>
+				<th align="left" class="sortcol" width="60">Paused</th>
+				<th align="left" class="sortcol" width="50">Passed</th>
+				<th align="left" class="sortcol" width="50">Failed</th>
+				<th align="left" class="sortcol" width="60">Blocked</th>
+				<th align="left" class="sortcol" width="50">Error</th>
+				<th align="left" class="sortcol" width="60">Waived</th>
+				<th align="left" class="sortcol" width="50">Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for test_plan in test_plans %}
+			{% for test_run in test_plan.runs %}
+			<tr>
+				{% if forloop.first %}
+				<td rowspan="{{ test_plan.runs|length }}"><a href="{{ test_plan.get_url_path }}">[{{ test_plan.pk}}] {{ test_plan.name }}</a></td>
+				{% endif %}
+				<td valign="top"><a href="{{ test_run.get_url_path }}">[{{ test_run.pk }}] {{ test_run.summary }}</a></td>
+				<td valign="top">
+                {% if test_run.IDLE %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=idel">{{ test_run.IDLE }}</a>{#}
+				{{ test_run.IDLE }}
+                {% else %}
+                {% endif %}
+                </td>
+				<td valign="top">
+                {% if test_run.RUNNING %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=running">{{ test_run.RUNNING }}</a>{#}
+				{{ test_run.RUNNING }}
+                {% else %}
+                {% endif %}
+                </td>
+				<td valign="top">
+                {% if test_run.PAUSED %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=paused">{{ test_run.PAUSED }}</a>{#}
+				{{ test_run.PAUSED }}
+                {% else %}
+                {% endif %}
+                </td>
+				<td valign="top">
+                {% if test_run.PASSED %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=passed">{{ test_run.PASSED }}</a>{#}
+				{{ test_run.PASSED }}
+                {% else %}
+                {% endif %}
+                </td>
+				<td valign="top">
+                {% if test_run.FAILED %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=failed">{{ test_run.FAILED }}</a>{#}
+				{{ test_run.FAILED }}
+                {% else %}
+                {% endif%}
+                </td>
+				<td valign="top">
+                {% if test_run.BLOCKED %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=blocked">{{ test_run.BLOCKED }}</a>{#}
+				{{ test_run.BLOCKED }}
+                {% else %}
+                {% endif%}
+                </td>
+				<td valign="top">
+                {% if test_run.ERROR %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=error">{{ test_run.ERROR }}</a>{#}
+				{{ test_run.ERROR }}
+                {% else %}
+                {% endif %}
+                </td>
+				<td valign="top">
+                {% if test_run.WAIVED %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}?case_run_status=waived">{{ test_run.WAIVED }}</a>{#}
+				{{ test_run.WAIVED }}
+                {% else %}
+                {% endif %}
+                </td>
+				<td valign="top">
+                {% if test_run.case_run.count %}
+                {#}<a href="{% url tcms.apps.testruns.views.get test_run.pk %}">{{ test_run.case_run.count }}</a>{#}
+				{{ test_run.case_run.count }}
+                {% else %}
+                {% endif %}
+                </td>
+			</tr>
+			{% endfor %}
+			{% endfor %}
+            {% for build in builds %}
+            <tr>
+            <td colspan="2" align="right" style="padding-right:10px;">Total</td>
+            <td>{{ build.case_runs_idle_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_running_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_paused_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_passed_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_failed_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_blocked_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_error_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_waived_count|default_if_none:0 }}</td>
+            <td>{{ build.case_runs_count|default_if_none:0 }}</td>
+            </tr>
+            {% endfor %}
+		</tbody>
+	</table>
+	<div class="failed_caserun">
+		All Failed Case-Run List
+	</div>
+	<table class="table_noborder" cellpadding="0" cellspacing="0" border="0" width="100%" id="id_table_cases" >
+		<tr>
+			<th align="left" class="sortcol sortdesc" width="60" >Case ID</th>
+            <th align="left" class="sortcol" width="100">Case Run ID</th>
+			<th align="left" class="sortcol">Summary</th>
+			<th align="left" class="sortcol" width="150">Category</th>
+			<th align="left" class="sortcol" width="120">Tester</th>
+            <th align="left" class="sortcol" width="120">Bugs</th>
+			<th align="left" class="sortcol" width="200">Lastest Execute Time</th>
+		</tr>
+		{% for test_case_run in test_case_runs %}
+		{% ifequal test_case_run.case_run_status.name 'FAILED' %}
+		<tr>
+			<td valign="top" ><a href="{{ test_case_run.case.get_url_path }}">{{ test_case_run.case.pk }}</a></td>
+            <td valign="top"><a href="{% url tcms.apps.testruns.views.get test_case_run.run_id %}#caserun_{{ test_case_run.pk }}">{{ test_case_run.pk }}</a></td>
+			<td valign="top" >{{ test_case_run.case.summary }}</td>
+			<td valign="top" >{{ test_case_run.case.category }}</td>
+			<td valign="top" >{{ test_case_run.tested_by }}</td>
+            <td valign="top" >
+            {% for bug in test_case_run.get_bugs %}
+            <a href="{{ bug.get_absolute_url }}">{{ bug }}</a>,
+            {% empty %}
+            <span class="grey">0</span>
+            {% endfor %}
+            </td>
+			<td valign="top" >{{ test_case_run.close_date }}</td>
+		</tr>
+		{% get_comment_list for test_case_run as comments %}
+		
+		{% if comments %}
+		<tr>
+			<td colspan="7">Comments:</td>
+		</tr>
+		{% for comment in comments %}
+		<tr class="border-bottom">
+			<td valign="top" colspan="7">{{ comment.comment|redhat_urlize|linebreaksbr }}<span class="grey">[{{ comment.user }} {{ comment.submit_date }}]</span></td>
+		</tr>
+		{% endfor %}
+		{% endif %}
+		
+		{% if test_case_run.bug.count %}
+		<tr>
+			<td colspan="7">Bugs:</td>
+		</tr>
+		{% endif %}
+		
+		{% for bug in test_case_run.bug.all %}
+		<tr class="border-bottom">
+			<td valign="top" colspan="7"><a href="{{ bug.get_url }}">{{ get_url }}</a> </td>
+		</tr>
+		{% endfor %}
+		
+		{% endifequal %}
+		{% endfor %}
+	</table>
+
+	<div class="blocked_caserun">
+		All Blocked Case-Run List
+	</div>
+	<table class="table_noborder" cellpadding="0" cellspacing="0" border="0" width="100%" id="id_table_cases" >
+		<tr>
+			<th align="left" class="sortcol sortdesc" width="60">Case ID</th>
+			<th align="left" class="sortcol sortdesc" width="100">Case Run ID</th>
+			<th align="left" class="sortcol">Summary</th>
+			<th align="left" class="sortcol" width="150">Category</th>
+			<th align="left" class="sortcol" width="120">Tester</th>
+            <th align="left" class="sortcol" width="120">Bugs</th>
+			<th align="left" class="sortcol" width="200">Lastest Execute Time</th>
+		</tr>
+		{% for test_case_run in test_case_runs %}
+		{% ifequal test_case_run.case_run_status.name 'BLOCKED' %}
+		<tr>
+			<td valign="top"><a href="{{ test_case_run.case.get_url_path }}">{{ test_case_run.case.pk }}</a></td>
+			<td valign="top"><a href="{% url tcms.apps.testruns.views.get test_case_run.run_id %}#caserun_{{ test_case_run.pk }}">{{ test_case_run.pk }}</td>
+			<td valign="top">{{ test_case_run.case.summary }}</td>
+			<td valign="top">{{ test_case_run.case.category }}</td>
+			<td valign="top">{{ test_case_run.tested_by }}</td>
+            <td valign="top">
+            {% for bug in test_case_run.get_bugs %}
+            <a href="{{ bug.get_absolute_url }}">{{ bug }}</a>,
+            {% empty %}
+            <span class="grey">0</span>
+            {% endfor %}
+            </td>
+			<td valign="top">{{ test_case_run.close_date }}</td>
+		</tr>
+		{% get_comment_list for test_case_run as comments %}
+		
+		{% if comments %}
+		<tr>
+			<td colspan="7">Comments:</td>
+		</tr>
+		{% for comment in comments %}
+		<tr class="border-bottom">
+			<td valign="top" colspan="7">{{ comment.comment|redhat_urlize|linebreaksbr }}<span class="grey">[{{ comment.user }} {{ comment.submit_date }}]</span></td>
+		</tr>
+		{% endfor %}
+		{% endif %}
+		
+		{% if test_case_run.bug.count %}
+		<tr>
+			<td colspan="7">Bugs:</td>
+		</tr>
+		{% endif %}
+		
+		{% for bug in test_case_run.bug.all %}
+		<tr class="border-bottom">
+			<td valign="top" colspan="7"><a href="{{ bug.get_url }}">{{ get_url }}</a> </td>
+		</tr>
+		{% endfor %}
+		
+		{% endifequal %}
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}

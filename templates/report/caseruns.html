@@ -1,0 +1,26 @@
+{% extends "tcms_base.html" %}
+
+{% load comments %}
+{% load report_tags %}
+
+{% block subtitle %}TestCaseRuns{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/report.js"></script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble"><a href="{% url tcms.core.views.index %}">Home</a> >> <a href="{% url tcms.report.views.view_test_run_report %}">Testing Report</a></div>
+	<div>
+		<h3>caseruns - {{ test_case_runs.count}}</h3>
+		{% include "run/table_caseruns.html" %}
+	</div>
+</div>
+{% endblock %}

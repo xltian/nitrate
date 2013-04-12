@@ -1,0 +1,265 @@
+Release Notes of TCMS trunk version(1.0)
+========================================
+
+Summary
+-------
+
+In trunk version we use the features built-in Django.
+
+We use brand new ACL model built-in Django. The new ACL model is based on 
+table permission. You can create some more groups or specific any user with 
+some table add/change/delete permission to control their actions as more 
+details as possible.
+
+New version use the admin page built-in Django. It give the administrators the
+possible to operate the database directly. All of admin actions will apply to
+database directly and made log in the new django_admin_log table, so all of
+admin actions are trackable.
+
+In trunk version we use the Authorization backend built-in Django. We create
+the Kerberos authorization backend(as default) based on python-kerberos. It's
+real easy to change the backend in the settings.py. Current we create three
+backends extra, included email(Django Database), bugzilla 3, and kerberos. 
+It will be very useful after it open sourced.
+
+We build the new environment, the new environment have three new concepts:
+
+* Group - Combine of property, the basic unit of new environment. You can
+select one group when you create or edit a test plan. The environment group 
+modification only apply when you create a new run from the plan, it is not
+affects the exist run.
+
+* Property - Is the values combine of you could select, like a class. When you
+create a new test run, it will read the group from the plan you create from,
+and display all of properties belong to the group let you select the value.
+
+* Value -  Is the instance you describe the property. If you create a property
+named 'CPU' you can add 'Core 2 Duo' or 'Athlon' as the value to the property.
+
+This version keeps compatible with testopia database schema. We only added some
+more tables but did not change the old schema. And we provide migration script
+to migrate from old tables to new tables.
+
+In the last is we rewrite all of codes. We use Django features sufficiently.
+Now we use django.contrib.auth app to manage the Accounts/Groups and
+Permissions. Use Django Form to process the submited data. Use extra function 
+of ORM to get the extra information from database. Use RequestContext to
+process the shared information in all pages. All of these optimization cause 
+to simpler code and more performance.
+
+Requirements
+------------
+* Django > 1.1
+* python-kerberos
+* python-memcached
+
+Unnecessary database packages:
+* mysql-server
+* MySQL-python
+* postgresql-server
+* python-psycopg2
+
+Installation
+------------
+
+* RPM installation
+
+For some reason of code/settings upgrading, it's better to remove the old 
+branch version from system then install the trunk version.
+
+$ sudo rpm -e nitrate
+$ sudo yum install ./nitrate-1.0-5.svn2042.RC.noarch.rpm
+
+It' will install the rpm automatically.
+
+* Basic settings
+
+Then edit the product_settings.py file in following path
+/usr/lib/python2.4/site-packages/tcms/product_settings.py
+
+The product_settings.py is default settings file for Red Hat Inc.
+
+Edit following database settings to correct values:
+
+DATABASE_ENGINE = 'mysql'      # 'postgresql_psycopg2', 'postgresql', 'mysql',
+                               # 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'tcms'         # Or path to database file if using sqlite3.
+DATABASE_USER = 'root'         # Not used with sqlite3.
+DATABASE_PASSWORD = 'redhat'   # Not used with sqlite3.
+DATABASE_HOST = 'localhost'    # Set to empty string for localhost. Not used 
+                               # with sqlite3.
+DATABASE_PORT = ''             # Set to empty string for default. Not used 
+                               # with sqlite3.
+
+If you wish to running TCMS with exist testopia database, please keep 
+following FIRST_RUN option set to 'True'. You should set the options to
+'False' after complete install script. Otherwise please change it to 'False'.
+(no single quotes):
+
+# First run - to detemine need port user or not.
+FIRST_RUN = True
+
+* Migrate from Test Runner database
+
+- It's a option step, for more details of how to do this please read the
+following link:
+
+* Creating the tables
+
+If your settings are correct, you should create the new tables that TCMS need.
+Simply run following code will be OK. If you got any problem please check your
+settings as upon settings.
+
+TIP: When the system ask you wish to create a superuser or not. Please type
+'no' then press enter key, Because we will migrate testopia users from
+profiles table to new auth_user table. If you create superuser here, the id 1
+user will be seized by the user you create, the old id 1 user in testopia will
+be unportable. 
+
+$ export DJANGO_SETTINGS_MODULE=tcms.product_settings
+$ django-admin syncdb
+Creating table auth_permission
+Creating table auth_group
+Creating table auth_user
+Creating table auth_message
+Creating table django_content_type
+Creating table django_admin_log
+Creating table tcms_env_groups
+Creating table tcms_env_plan_map
+Creating table tcms_env_properties
+Creating table tcms_env_group_property_map
+Creating table tcms_env_values
+Creating table tcms_env_run_value_map
+
+You just installed Django's auth system, which means you don't have any 
+superusers defined.
+Would you like to create one now? (yes/no): no
+Installing index for auth.Permission model
+Installing index for auth.Message model
+Installing index for admin.LogEntry model
+Installing index for management.TCMSEnvGroup model
+Installing index for management.TCMSEnvPlanMap model
+Installing index for management.TCMSEnvGroupPropertyMap model
+Installing index for management.TCMSEnvPropertyValueMap model
+Installing index for management.TCMSEnvRunValueMap model
+$
+
+* Test the server running and migrate the users
+
+Continue from upon steps.
+
+$ cd /usr/share/tcms
+$ django-admin runserver $(hostname):8080
+
+Now open your browser and navigate to the server you deployed and port 8080,
+
+If your settings are correct you will see the server started up, the log in
+page appear in your browser. But whatever user name or password that you can
+not login.
+
+Now navigate to /install path in your browser such as
+process.
+
+The first step it will create two groups - Tester and Administartor, and
+assign the permissions to them. The create progress will display in your
+browser.
+
+Then click the link on top of your web page to start to migrate users from
+testopia, it will spend some minutes, so be patient.
+
+Because testopia use email to be the login name, but Django use
+the separate word as the user name. So the migrate script split the prefix of
+email as user name. All login name with same prefix that failed to migrate
+will displayed in the page. If you use the complete testopia the probability
+of failed to migrate user will be very low, but if you migrate database
+from Test Runer in previous steps, you will see some users will be failed to 
+migrate. If you see installation completed information in this page only, I
+will congratulation to you.
+
+After installation completed, please change the FIRST_RUN option in
+product_settings.py file to 'False'(no single quotes), it will disable the
+migration script to protect the system.
+
+# First run - to detemine need port user or not.
+FIRST_RUN = False
+
+* Setup kerberos for authorization
+
+For use authorization backend based on python-kerberos, we should setup the
+/etc/krb5.conf file first.
+
+For Red Hat Inc, we placed a sample file in 
+/usr/lib/python2.4/site-packages/tcms/Documents/krb5.conf
+
+Just copy the file into /etc/ will be OK.
+
+The file could be get from helpdesk too.
+
+* Deploy into web server
+
+The Django app deployment is easy, a lot of tutorial could be found in
+internet.
+
+In this case we provide apache + mod_python and nginx + FastCGI two ways to
+deploy the app.
+
+The same point of the config files we provided is they are enabled HTTPS/SSL
+support by default, access the normal HTTP protocol will redirect to HTTPS.
+And they are holding the root path of the server so far, so other system 
+running in same web server will need to be reconfig.
+
+** Apache + mod_python
+Apache + mod_python is our default commendation deployment method. We had 
+placed the apache settings file in /etc/httpd/conf.d/nitrate.conf. The file
+should works fine without any configuration.
+
+[CAREFULLY] - We dropped mod_auth_kerb package support. Use the Django
+authorization backend based on python-kerberos to instead of it. So do NOT
+config apache to for mod_auth_kerb. 
+
+For more information please read the guide:
+http://docs.djangoproject.com/en/dev/howto/deployment/modpython/
+
+** Nginx + FastCGI
+For performance reason, Nginx + FastCGI is faster than Apache + mod_python.
+It may also could be solved some strange problems too, such as TCMS could not
+connect to database. So it's another nice way to deploy TCMS if user needed.
+
+You could reference the nginx settings in
+/usr/lib/python2.4/site-packages/tcms/Documents/nginx.conf
+
+Place the sample config file into /etc/nginx/ then edit the file, replace the
+be fine.
+
+Then start the FastCGI server in TCMS directory.
+[CAREFULLY] - The step will be repeat after the server machine restart.
+
+$ cd /usr/lib/python2.4/site-packages/tcms/
+$ python manage.py runfcgi host=127.0.0.1 port=8000 
+  --settings=tcms.product_settings
+
+Then start nginx server.
+
+For more information please read the guide:
+http://www.rkblog.rk.edu.pl/w/p/django-nginx/
+
+
+Bug reporting
+-------------
+
+Bugzilla - https://bugzilla.redhat.com/browse.cgi?product=TCMS
+Trac - https://engineering.redhat.com/trac/testify20/
+
+
+Authors
+-------
+
+Product Manager:        Lawrence Lim <llim@redhat.com>
+                        Victor Chen <vchen@redhat.com>
+Main developer:         Xuqing Kuang <xkuang@redhat.com>
+Page designer:          Danqing Li <dli@redhat.com>
+Top code contributor:   David Malcolm <dmalcolm@redhat.com>
+Special thanks to:      Lizhang Li <eli@redhat.com>
+
+
+Write by Xuqing Kuang <xkuang@redhat.com> at Thu Oct 22 2009

@@ -1,0 +1,17 @@
+{% if test_case.log %}
+<h4 onclick='this.next(0).toggle()' class='cursor_pointer'>Change Log
+	<span class='log_grey'>Click to show the detail information</span>
+</h4>
+
+<ul style='display:none'>
+	{% for log in test_case.log %}
+	<li>[{{ log.date }}] - [{{ log.who }}] - {{ log.action }}</li>
+	{% endfor %}
+</ul>
+{% else %}
+<h4>Change Log</h4>
+<ul>
+<li class="grey">No log recorded.</li>
+</ul>
+{% endif %}
+

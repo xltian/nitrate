@@ -1,0 +1,137 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}Versions Report- {{ product }}{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/report.js"></script>
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.Report.List.on_load);
+</script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>>Report
+	</div>
+	<div class="tab_menu">
+		<span class="head">{{ product }}</span>
+		<div class="tab">
+			<div class="menu {% ifequal SUB_MODULE_NAME 'overview' %}selected{% endifequal %}"><div><a href="">Overview</a></div></div>
+			<div class="menu selected"><div><a href="">Versions</a></div></div>
+		</div>
+
+	</div>
+	<div class="Detailform border-1" style="border-top:none;background:#f1f1f1 ;">
+		<span class="right-action tab_shift"> 
+			<label class=""><a href="/report/product/64/version/" onclick="">report</a></label>
+			 | 
+			<label class="select">dashboard</label>
+		</span>
+		{% if version %}
+		<h2>Version: {{ version }}</h2>
+		<div class="bold-line" style="float:left;width:100%"></div>
+		
+		{% endif %}
+		<table class="list dashboard_tb" collspan="0" cellspacing="0">
+			<tr>
+				<th>Plans</th>
+			</tr>
+			<tr>
+				<td>
+					<img src="http://chart.apis.google.com/chart?chxt=x,y&cht=bvs&chd=s:cEj9U&chco=76A4FB&chls=2.0&chs=200x125"/>
+				</td>
+			</tr>
+		</table>
+		<table class="list dashboard_tb" collspan="0" cellspacing="0">
+			<tr>
+				<th>Runs</th>
+			</tr>
+			<tr>
+				<td>
+					<fieldset class="chart_setting">
+						<legend>Status</legend>
+						<ol class="ul-no-format">
+							<li>
+								<div class="color-tested status" >
+								</div>
+								<lable>Tested Runs</label>
+							<lil>
+							<li>
+								<div class="color-untested status" >
+								</div>
+								<lable>Tested Runs</label>
+							</li>
+						</ol>
+						
+					</fieldset>
+					<img src="http://chart.apis.google.com/chart?chxt=x,y&cht=bvs&chs=400x220&chd=t:10,50,60,72,85,92,93,94,95|50,60,70,76,88,93,94,95,99&chco=659acc,dddddd&chbh=20&chds=0,180"/>
+				</td>
+			</tr>
+		</table>
+		<table class="list dashboard_tb" collspan="0" cellspacing="0">
+			<tr>
+				<th>Cases</th>
+			</tr>
+			<tr>
+				<td>
+					<img src="http://chart.apis.google.com/chart?chxt=x,y&cht=bvs&chd=s:cEj9U&chco=aacccc&chls=2.0&chs=200x125"/>
+				</td>
+			</tr>
+		</table>
+		<table class="list dashboard_tb" collspan="0" cellspacing="0">
+			<tr>
+				<th>Testing Cases</th>
+			</tr>
+			<tr>
+				<td>
+					<fieldset class="chart_setting">
+						<legend>Status</legend>
+						<ol class="ul-no-format">
+							<li>
+								<div class="color-passed status" >
+								</div>
+								<lable>PASSED</label>
+							<lil>
+							<li>
+								<div class="color-failed status" >
+								</div>
+								<lable>FAILED</label>
+							</li>
+							<li>
+								<div class="color-running status" >
+								</div>
+								<lable>RUNNING</label>
+							</li>
+							<li>
+								<div class="color-paused status" >
+								</div>
+								<lable>PAUSED</label>
+							</li>
+							<li>
+								<div class="color-blocked status" >
+								</div>
+								<lable>BLOCKED</label>
+							</li>
+							<li>
+								<div class="color-error status" >
+								</div>
+								<lable>ERROR</label>
+							</li>
+						</ol>
+						
+					</fieldset>
+					<img src="http://chart.apis.google.com/chart?cht=bvs&chs=300x200&chbh=20,1&chxt=x,y&chd=s:jac,OQS,MOJ&chds=0,265&chxr=0,0,265|1,0,265&chxl=0:|0|1|2&chf=&chco=5131C9,cccccc,DA1B1B&agent=jgcharts"/>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div><!--content over -->
+{% endblock %}

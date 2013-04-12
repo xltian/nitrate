@@ -1,0 +1,8 @@
+<li id="id_select_box_{{ create_time }}">
+	<select name="env_properties">
+		{% for property in env_properties %}
+		<option value="{{ property.property_id }}">{{ property.name }}</option>
+		{% endfor %}
+	</select>
+	<input type="button" value="Remove" onclick="$('id_select_box_{{ create_time }}').remove()" />
+</li>

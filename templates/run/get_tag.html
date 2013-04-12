@@ -1,0 +1,17 @@
+<ul>
+{% for tag in object.tag.all %}
+<li>
+	{{ tag }}
+	{% if perms.testruns.delete_testruntag %}
+	<a href="javascript:void(0)" onclick="removeRuntag('id_tag_container', '{{ object.run_id }}', '{{ tag }}')"><img src="{{ MEDIA_URL }}/images/remove_small.png" width="9" height="9" title="remove this tag" /></a>
+	{% endif %}
+</li>
+
+{% empty %}
+</ul>
+
+{% endfor %}
+
+{% if perms.testruns.add_testruntag %}
+<div><a class="addlink" href="javascript:void(0)" onclick="addRunTag('id_tag_container', '{{ object.run_id }}')">Add Tag</a></div>
+{% endif %}

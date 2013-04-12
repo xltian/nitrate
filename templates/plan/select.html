@@ -1,0 +1,102 @@
+{% extends "tcms_base.html" %}
+
+{% load extra_filters %}
+
+{% block subtitle %}Test plans{% endblock %}
+
+{% block custom_stylesheet %}
+{% endblock %}
+
+{% block contents %}
+
+<!--creat plan(button)-->
+<div id="content">
+    <div class="sprites crumble"><a href="/">Home</a>>><font size="2" color="#8F6A32">Please select a test plan</font></div>
+    <div id="itemSearch">
+        <div class="top"><b>Search Plan</b></div>
+        <div class="Title">Plan Title</div>
+        <div class="cell"><input type="text" size="17"></div>
+        <div class="Title">Project</div>
+        <div class="cell">
+            <select>
+                <option>TCMS</option>
+                <option>ICS</option>
+            </select>
+        </div>
+        <div class="Title">Type</div>
+        <div class="cell">
+            <select>
+                <option>Function</option>
+                <option>Installation</option>
+                <option>Integration</option>
+                <option>Perfomance</option>
+            </select>
+        </div>
+        <div class="Title">Version</div>
+        <div class="cell">
+            <select>
+                <option>0.1</option>
+                <option>0.2</option>
+                <option>0.3</option>
+                <option>0.4</option>
+                <option>0.5</option>
+            </select>
+        </div>
+        <div class="Title">Author</div>
+        <div class="cell"><input type="text" size="17"></div>
+        <div class="bottom">
+            <span><input type="submit" size="7" value="Submit" name=""></span>
+            <span><input type="button" size="7" value="Reset" name=""></span>
+        </div>
+    </div>
+    <div class="tabs" cellspacing="0" cellpadding="10" border="0" width="100%">
+        <div class="Btn_s"><a href="/run/new">Create Test Run</a></div>
+    </div>
+
+    <!--plan listtable begin-->
+        <table class="itemList" cellpadding="0" cellspacing="0" border="0" style="table-layout:fixed;">
+            <thead>
+                <tr>
+                    <th align="left" class="widthID">ID</th>
+                    <th align="left" width="50%">Name</th>
+                    <th align="left" width="8%">version</th>
+                    <th align="left" width="8%">Type</th>
+                    <th align="left" width="8%">#cases</th>
+                    <th align="left" width="8%">#runs</th>
+                    <th align="left" width="15%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if testplans %}
+                {% for testplan_id, testplan in testplans.items %}
+
+                {% if forloop.counter|divisibleby:"2" %}
+                <tr class="oddRow">
+                {% else %}
+                <tr class="evenRow">
+                {% endif %}
+                    <td ><a href="/plan/{{ testplan.plan_id }}/">{{ testplan.plan_id }}</a></td>
+                    <td valign="top"><a href="#">{{ testplan.title }}</a></td>
+                    <td valign="top">{{ testplan.product_version }}</td>
+                    <td valign="top">{{ testplan.type }}</td>
+                    <td valign="top"><B>{{ testplan.testcases_count }}</B></td>
+                    <td valign="top"><B>{{ testplan.testruns_count }}</B></td>
+                    <td valign="top" ALIGN="middle">
+                    <!--<a href="/plan/{{ testplan.plan_id }}/">Details</a>
+                        &nbsp;|&nbsp;-->
+                        <font color="GRAY"><a href="/tt/createrun.html">Create New Run</a></font>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6"></td>
+                </tr>
+            </tfoot>
+        </table>
+</div>
+
+{% endblock %}
+

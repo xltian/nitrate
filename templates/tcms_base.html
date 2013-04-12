@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>{% block subtitle %}{% endblock %}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Content-Language" content="utf-8" />
+	<link rel="Shortcut Icon" href="{{ MEDIA_URL }}/images/favicon.png" />
+	<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/base.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+	{% block custom_stylesheet %}{% endblock %}
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/jquery-1.5.1.min.js'></script>
+	<script type="text/javascript" language="javascript" charset="utf-8">
+		jQuery.noConflict();
+		var jQ = jQuery;
+	</script>
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/livepipe/lib/prototype.js'></script>
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/livepipe/lib/scriptaculous.js'></script>
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/livepipe/src/livepipe.js'></script>
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/jquery.shiftcheckbox.js'></script>
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/init.js'></script>
+	<script type="text/javascript" src='{{ MEDIA_URL }}/js/tcms_actions.js'></script>
+	{% block custom_javascript %}{% endblock %}
+	<script type="text/javascript">
+	window.__admin_media_prefix__ = "{{ SETTINGS.ADMIN_MEDIA_PREFIX }}";
+	{% if request.user.is_authenticated %}
+	Nitrate.User = {
+		pk: {{ request.user.pk }},
+		username: '{{ request.user.username }}',
+		email: '{{ request.user.email }}',
+	};
+	{% else %}
+	Nitrate.User = {
+		pk: null,
+		username: 'anonymous',
+		email: 'anonymous@anywhere.com',
+	};
+	{% endif %}
+	</script>
+</head>
+<body id="body">
+	<div id="header">
+			<div class="logo">
+				<a href="{% url tcms.core.views.index %}"><img src="{{ MEDIA_URL }}/images/logo_shipshape_1.png" alt="logo" /></a>
+			</div>
+			<div class="absoluteright">
+				<label>
+					{% if user.is_authenticated %}
+					<a href="{% url tcms.apps.profiles.views.profile user.username %}">Welcome, {{ user }}</a>
+					{% if AUTH_BACKEND.can_logout %}
+					<span>[</span><a href="{% url tcms.core.contrib.auth.views.logout %}?next={{ request.path }}">Logout</a><span>]</span>
+					{% endif %}
+					{% else %}
+					Welcome, Guest.
+					[
+					{% if AUTH_BACKEND.can_login %}
+					<a href="{% url django.contrib.auth.views.login %}?next={{ request.path }}" class="banner_login">Login</a>
+					{% endif %}
+					{% if AUTH_BACKEND.can_register %}
+					<a href="{% url tcms.core.contrib.auth.views.register %}?next={{ request.path }}" class="banner_login">Register</a>
+					{% endif %}
+					]
+					{% endif %}
+					<a class="sprites userguide" href="{{ SETTINGS.USER_GUIDE_URL }}" target="_blank">User Guide</a>
+				</label>
+			</div>
+			{% include 'menu.html' %}
+			{% if user.is_authenticated %}
+			<form id="id_bookmark_iform" action="{% url tcms.apps.profiles.views.bookmark user.username %}" method="get">
+				<input type="hidden" name="a" value="render_form" />
+				<input type="hidden" name="user" value="{{ request.user.pk }}" />
+				<input type="hidden" name="site" value="{{ SETTINGS.SITE_ID }}" />
+				{% block content_type %}{% endblock %}
+				<input type="submit" value="Bookmark this page" class='sprites bookmark' />
+			</form>
+			{% endif %}
+	</div>
+	{% block contents %}{% endblock %}
+	<div id="dialog" style="display:none"><div class="ajax_loading"></div></div>
+	<div id="footer">
+		{% if SETTINGS.FOOTER_LINKS %}
+		<div class="footercontent">
+			{% for link in SETTINGS.FOOTER_LINKS %}
+			<a href="{{ link.0 }}">{{ link.1 }}</a>{% if not forloop.last %}|{% endif %}
+			{% endfor %}
+		</div>
+		{% endif %}
+		<div class="center"><span>Nitrate NITRATE_VERSION &copy; {% now "Y" %} Red Hat, Inc. All rights reserved.</span></div>
+	</div>
+</body>
+</html>

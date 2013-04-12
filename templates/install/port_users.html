@@ -1,0 +1,12 @@
+{% if create_user_errors %}
+Following users are failed to migrate.
+<ul>
+{% for user in create_user_errors %}
+	<li>{{ user }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+Installation completed.
+
+Please do not forget to set FIRST_RUN to False in settings file.

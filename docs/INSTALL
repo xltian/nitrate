@@ -1,0 +1,310 @@
+= Nitrate installation =
+
+== Contents: ==
+
+ * [#create_dev_env Create a development environment.]
+   * [#requirements Requirements]
+   * [#download_source Download the source.]
+   * [#generate_config_file Generate the configuration file.]
+   * [#initial_db Create the initial database schema.]
+   * [#initial_data Create the initial data.]
+     * [#initial_super_user Add the super user]
+     * [#initial_site Add the site definition]
+   * [#start_app Start the Django app.]
+   * [#basic_admin Basic admin works]
+     * [#initial_bug_tracker Bug tracker initialization]
+     * [#initial_group User groups initialization]
+ * [#extra_apache Deploy with Apache.]
+   * [#extra_apache_mod_auth_kerb Deploy with mod_auth_kerb.]
+ * [#extra_nginx Deploy with Nginx.]
+ * [#migrate_testopia Migrate from Testopia.]
+ * [#more_info More information.]
+
+== Create a development environment. == #create_dev_env
+Nitrate is standard Django app. The deployment method is the same as
+[http://docs.djangoproject.com/en/dev/howto/deployment/ others].
+
+Before you starting to installation, please read the
+[https://fedorahosted.org/nitrate/browser/trunk/nitrate/docs/README README]
+file at first.
+
+=== Requirements === #requirements
+ * [http://www.python.org Python] >= 2.4
+ * [http://www.djangoproject.com/ Django] = 1.1 (1.2 is not supported yet)
+ * [http://sourceforge.net/projects/mysql-python/ python-MySQL]
+ * [https://fedorahosted.org/kobo/ Kobo]
+ * [http://koji.fedoraproject.org/koji/packageinfo?packageID=5539 python-kerberos]
+
+Recommendations for development:
+ * [http://github.com/robhudson/django-debug-toolbar Django debug toolbar]
+
+=== Download the sources. === #download_source
+The Nitrate source code is available at:
+https://fedorahosted.org/nitrate/browser/trunk/nitrate/
+
+You can easy to get the latest changes with git:
+{{{
+# git clone git://git.fedorahosted.org/nitrate.git
+}}}
+
+Or you also can download the tarballs and rpms from:
+https://fedorahosted.org/nitrate/browser/branches/nitrate/
+
+=== Generate the configuration file. === #generate_config_file
+We recommend you to create a new settings file based on nitrate/tcms/settings.py
+file for develop environment or production environment. As you can see the
+settings.py file contains default/safest configurations, create another settings
+file contains the configurations you private will be more better than modify the
+default settings.
+
+At this moment, I presume the file you write named 'dev_settings.py', place the
+file to the same path as settings.py.
+
+You may need to modify following contents, for more, reference the settings.py:
+
+{{{
+# Database settings
+
+DATABASE_ENGINE = 'sqlite3'     # 'postgresql_psycopg2', 'postgresql',
+                                # 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'dev.db'        # Or path to database file if using sqlite3.
+DATABASE_USER = ''              # Not used with sqlite3.
+DATABASE_PASSWORD = ''          # Not used with sqlite3.
+DATABASE_HOST = ''              # Set to empty string for localhost.
+                                # Not used with sqlite3.
+DATABASE_PORT = ''              # Set to empty string for default.
+                                # Not used with sqlite3.
+
+# Local time zone for this installation. Choices can be found here:
+# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
+# although not all choices may be available on all operating systems.
+# If running in a Windows environment this must be set to the same as your
+# system time zone.
+TIME_ZONE = 'Asia/Shanghai'
+
+# Mail settings
+
+# Set the default send mail address
+# See http://docs.djangoproject.com/en/dev/ref/settings/#email-backend
+EMAIL_HOST = ''
+EMAIL_PORT = 25
+EMAIL_FROM = 'noreply@foo.com'
+EMAIL_SUBJECT_PREFIX = '[TCMS] '
+
+# First run - to detemine need port user or not.
+FIRST_RUN = True
+
+# The URLS will be list in footer
+# Example:
+#FOOTER_LINKS = (
+#   ('mailto:nitrate-dev-list@example.com', 'Contact Us'),
+#   ('mailto:nitrate-admin@example.com', 'Request Permission'),
+#   ('http://foo.com', 'foo')
+#)
+FOOTER_LINKS = ()
+}}}
+
+=== Initial database schema. === #initial_db
+Database is required by Nitrate(and all of Django apps). The Django ORM supports
+many database backends, we recommend you to use MySQL(In fact it's a bug so far).
+
+We provided two SQL file for usage.
+
+Empty testopia dumps file:
+https://fedorahosted.org/nitrate/browser/trunk/nitrate/docs/testopia-dump-blank.sql
+
+Nitrate upgrade dumps file:
+https://fedorahosted.org/nitrate/browser/trunk/nitrate/docs/mysql_initial.sql
+
+First you need define the mysql database configuration in dev_settings.py file.
+Then download and import the database dumps files, I presume the database named
+'nitrate'.
+{{{
+$ mysql -u [db_username] -p nitrate < testopia-dump-blank.sql
+$ mysql -u [db_username] -p nitrate < mysql_initial.sql
+}}}
+Then use the django-admin syncdb to initial the data.
+{{{
+$ export DJANGO_SETTINGS_MODULE=tcms.dev_settings
+}}}
+If you are install from git source you need to define the env as following:
+$ export PYTHONPATH=[nitrate_download_path]/nitrate/trunk/nitrate/
+{{{
+$ django-admin syncdb
+}}}
+
+If you got some errrors report, just try to type upon commands and run again.
+
+=== The data initialization === #initial_data
+The initial data including the first super user, site definition, they will be
+needed by the server running.
+
+==== Add the super user ==== #initial_super_user
+Simple type following commands in shell should be OK
+
+{{{
+$ django-admin.py createsuperuser
+Username: [You login user name]
+E-mail address: [Your email]
+Password: [Your password]
+Password (again): [Your password again]
+Superuser created successfully.
+}}}
+
+For more information access the
+[http://docs.djangoproject.com/en/dev/topics/auth/#creating-superusers User authentication in Django].
+
+==== Add the site definition ==== #initial_site
+Here you need some python skills, just type like following:
+
+{{{
+$ python
+>>> from django.contrib.sites.models import Site
+>>> Site.objects.create(name="example.com")
+}}}
+
+Replace the "example.com" to your web server domain name, the definition will
+be used in mailing system.
+
+For more information access the
+[http://docs.djangoproject.com/en/dev/ref/contrib/sites/ Django site framework].
+
+=== Start the Django app. === #start_app
+After upon steps completed, now you can try to start the web server built-in
+Django to testing the app running.
+
+Define the envs again if you does not completed the steps, it should confirm the
+envs exist in system before start the server.
+{{{
+$ cd [nitrate_download_path]/nitrate/trunk/nitrate/
+$ export DJANGO_SETTINGS_MODULE=tcms.dev_settings
+$ export PYTHONPATH=[nitrate_download_path]/nitrate/trunk/nitrate/
+
+$ django-admin runserver
+}}}
+Then try to use web browser to open http://localhost:8000/ to see the web service
+working status.
+
+=== Basic admin works === #basic_admin
+After your typed your super user user name and password in the browser, you
+will see the "Home page" of Nitrate, there are some configuration needed by you
+enter in the admin system.
+
+==== Bug tracker initialization ==== #initial_bug_tracker
+Access http://localhost:8000/admin/testcases/testcasebugsystem/ on your server,
+and add a new bug tracker URL to Nitrate, it's required by execute run feature.
+
+Click the 'Add test case bug system' link in the top of the table, type the name
+and description as your wish, then type the 'Url reg exp' like
+'https://bugzilla.redhat.com/show_bug.cgi?id=%s', The '%s' will be replaced by
+bug ID.
+
+Nitrate supported multiple bug tracker system backend, the only requirement is
+the bug tracker supports access the bug with bug ID.
+
+==== User groups initialization ==== #initial_group
+Access http://localhost:8000/admin/auth/group/ on your server, you need to create
+the group need by tester at least, apply all of add/change permissions(The
+permissions starts with 'auth_' also be excluded) to the group.
+
+Then when a new memember join the system, just apply the tester group he will
+get the minimal permissions to create/update test plan/case/run and execute the run.
+
+You also can create a group named 'Administrator', apply the people management
+permission(The permissions name starts with 'auth_') to it, allocate some trusted
+people to the group for the user management work.
+
+== Deploy with Apache. == #extra_apache
+We recommend to use the WSGI method, it saves resources and very fast. The sample
+is located at:
+https://fedorahosted.org/nitrate/browser/trunk/nitrate/contrib/conf/nitrate-httpd.conf
+
+Take care the config file enabled mod_auth_kerb authentication, you may need to
+comment the settings starts with 'Auth' and 'Krb' at first.
+
+Then place the file to /etc/httpd/conf.d/ and modify the files path from default
+to you specific should be OK.
+
+=== Deploy with mod_auth_kerb. === #extra_apache_mod_auth_kerb
+First you need to request the keytab file and a /etc/krb5.conf from your KDC
+administrators at first, place the keytab file to /etc/httpd/conf/httpd.keytab
+and place the krb5.conf file into /etc.
+
+Then modify the Nitrate product settings file. I recommend you to create another
+settings file inherit from dev_settings.py to disable DEBUG options and other
+configuration settings you need in production environment, I presume new settings
+file named 'product_settings.py' here.
+
+Then modify the authentication backends settings in the file as following:
+{{{
+# Authentication backends
+
+AUTHENTICATION_BACKENDS = (
+    'tcms.core.contrib.auth.backends.ModAuthKerbBackend',
+)
+}}}
+
+Then restart the web server should be done.
+
+== Deploy with Nginx. == #extra_nginx
+With benchmark, we found Nginx + FCGI is faster than Apache + Mod_python, To use
+the Nginix to deploy the Nitrate will be a good idea for production environment.
+
+The configuration sample located at:
+https://fedorahosted.org/nitrate/browser/trunk/nitrate/contrib/conf/nitrate-nginx.conf
+
+The file is very initial, and patches are welcome.
+
+== Migrate from Testopia. == #migrate_testopia
+Because of Nitrate schema is compatible with testopia, it makes migrate the data
+from testopia is possible.
+
+The steps is most the same as the texts in section 'Initial database schema.', 
+The different is import the empty dumps steps is not needed. Just made the
+Nitrate settings point the DB settings to running testopia database, then run
+following steps should be OK.
+{{{
+$ mysql -u [db_username] -p [testopia_db_name] < mysql_initial.sql
+}}}
+Then use the django-admin syncdb to initial the data.
+{{{
+$ export DJANGO_SETTINGS_MODULE=tcms.dev_settings
+}}}
+If you are install from git source you need to define the env as following:
+{{{
+$ export PYTHONPATH=[nitrate_download_path]/nitrate/trunk/nitrate/
+$ django-admin syncdb
+}}}
+Because of Nitrate supports multiple bug tracker system, you may need to initial
+the bugzilla URL like following:
+{{{
+$ mysql -u [db_username] -p
+mysql> USE [testopia_db_name]
+mysql> INSERT INTO test_case_bug_systems (name, url_reg_exp) values ('Bugzilla', 'https://bugzilla.redhat.com/show_bug.cgi?id=%s');
+mysql> UPDATE test_case_bugs SET bug_system_id = 1;
+}}}
+The bugzilla(testopia) can keep running, just modify the 'url_reg_exp' column
+for bugzilla as the bugzilla(testopia) URL.
+
+== More information. == #more_info
+ * http://docs.djangoproject.com
+ * http://docs.djangoproject.com/en/dev/howto/deployment/
+
+== Full-text search using Haystack ==
+    1. Download Haystack using git-clone: https://github.com/toastdriven/django-haystack.git and install it
+    2. Install xapian-core and xapian python bindings. (http://xapian.org/download)
+    3. Install xapian-haystack
+    4. New configuration lines in settings.py regarding to searching:
+        5.1. SEARCH_PAGING = 100
+        5.2. In INSTALLED_APPS, append 'haystack'
+        5.3. HAYSTACK_SITECONF = 'tcms.confs.haystack_conf'
+        5.4. HAYSTACK_SEARCH_ENGINE = 'xapian'
+        5.5. HAYSTACK_XAPIAN_PATH = '%s/haystack_index/' % os.path.dirname(__file__)
+    5. Run this command to build index: python manage.py rebuild_index
+
+== Memcache ==
+    1. In settings.py, incorporate this by adding or modifying:
+        CACHE_BACKEND = 'memcached://127.0.0.1:11211/?timeout=300'
+    2. Install memcached and cmemcache(memcache API)
+    3. Run:
+        memcached -m 100 -d

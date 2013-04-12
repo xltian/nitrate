@@ -1,0 +1,294 @@
+<html><head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Highcharts Example</title>
+		
+		<script type="text/javascript" src="prototype.js"></script>
+		<script type="text/javascript" src="effects.js"></script>
+		<script type="text/javascript" src="highcharts-adapter.js"></script>
+		<!--[if IE]>
+			<script type="text/javascript" src="excanvas.compiled.js"></script>
+		<![endif]-->
+		<script type="text/javascript" src="highcharts201.src.js"></script>
+		
+		<style type="text/css">
+			body {
+				font-family: Arial, Verdana, sans-serif;
+			}
+			a {
+				text-decoration: none;
+				padding: 0 0.5em;
+			}
+			a.active {
+				background-color: blue;
+				color: white;
+			}
+		</style>
+		
+		
+		<script type="text/javascript">
+				var chart; // global
+				var chart2;
+				var chart3;
+				var moved = false;
+				Event.observe(window, 'load', function(){
+				
+				chart = new Highcharts.Chart({
+				chart: {
+					renderTo: 'container',
+					defaultSeriesType: 'area',
+					events: {
+						load: function() {
+							// check grep
+							if (this.getSelectedPoints().length == 1) log("grep: ok");
+							
+							// toggle selection to trigger a tricky event
+							this.getSelectedPoints()[0].select();
+							
+							// check fireEvent, running if this load function runs
+							log("fireEvent: ok")
+							
+							// check addEvent, running if this load function runs
+							log ("addEvent: ok")
+							
+						}
+					}
+				},
+				title: {
+					text: 'Column chart with negative values'
+				},
+				xAxis: {
+					categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+				},
+				tooltip: {
+					formatter: function() {
+						return '<b>'+ this.x +'</b><br/>'+
+							 this.series.name +': '+ this.y +'';
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name: 'Tokyo',
+					dataURL: 'http://github.com/mnelson/Prototype-Highcharts-Adapter/raw/master/tokyo.json'
+				}, {
+					name: 'John',
+					data: [{
+						selected: true,
+						y: 15
+					}, 30, 24, 17, 2]
+				}]
+			});
+			
+			var shared_options = {
+				chart: {
+					renderTo: 'container2',
+					defaultSeriesType: 'area'
+				},
+				title: {
+					text: 'Column chart with negative values'
+				},
+				xAxis: {
+					categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+				},
+				tooltip: {
+					formatter: function() {
+						return '<b>'+ this.x +'</b><br/>'+
+							 this.series.name +': '+ this.y +'';
+					}
+				},
+				credits: {
+					enabled: false
+				},
+				series: [{
+					name: 'Tokyo',
+					dataURL: 'http://github.com/mnelson/Prototype-Highcharts-Adapter/raw/master/tokyo.json'
+				}, {
+					name: 'John',
+					data: [{
+						selected: true,
+						y: 15
+					}, 30, 24, 17, 2]
+				}]
+			}
+			
+			chart2 = new Highcharts.Chart(shared_options);
+			shared_options.chart.renderTo = 'container3';
+			shared_options.chart.defaultSeriesType = 'column';
+			chart3 = new Highcharts.Chart(shared_options);
+		});
+		
+		
+		
+		function log(str) {
+			document.getElementById('checks').innerHTML += '<li>'+ str +'</li>';
+		}
+
+
+		// Unit testing
+
+		function testEach() {
+			// Arrange
+			var arr = [1];
+
+			// Act 
+			HighchartsAdapter.each(arr, function(value, i) {
+				arr[i] = 2;
+			});
+
+			// Assert
+			fireunit.ok(arr[0] == 2, 'each');
+		}
+
+		function testGetAjax() {
+			// Arrange
+			var file = 'http://github.com/mnelson/Prototype-Highcharts-Adapter/raw/master/tokyo.json', 
+				success = false;
+
+			// Act
+			HighchartsAdapter.getAjax(file, function(data) {
+				success = (typeof data == 'string');
+
+				// Assert
+				fireunit.ok(true, 'getAjax');
+			});
+			
+		}
+
+		function testGrep() {
+			// Arrange
+			var arr = [1, 2];
+
+			// Act 
+			arr = HighchartsAdapter.grep(arr, function(value) {
+				return (value == 1);
+			});
+
+			// Assert
+			fireunit.ok(arr.length == 1, 'grep');
+		}
+
+		function testHyphenate() {
+			// Arrange
+			var str = 'leftPadding';
+
+			// Act
+			str = HighchartsAdapter.hyphenate(str);
+
+			// Assert
+			fireunit.ok(str == 'left-padding', 'hyphenate');
+		}
+
+		function testMap() {
+			// Arrange
+			var arr = [1];
+
+			// Act 
+			arr = HighchartsAdapter.map(arr, function(value) {
+				return value + 1;
+			});
+
+			// Assert
+			fireunit.ok(arr[0] == 2, 'map');
+		}
+
+		function testMerge() {
+			// Arrange
+			var obj1 = {
+					firstLevel: {
+						secondLevel: {
+							thirdLevel: 1
+						}
+					}
+				},
+				obj2 = {
+					firstLevel: {
+						originalProp: {
+							thirdLevel: 2
+						}
+					}
+				},
+				obj3 = {
+					firstLevel: {
+						secondLevel: {
+							thirdLevel: 3
+						}
+					},
+					arr: [1]
+				},
+				obj4;
+			
+			// Act 
+			obj4 = HighchartsAdapter.merge(obj1, obj2, obj3);
+
+			// Assert
+			fireunit.ok(
+				obj4.firstLevel.secondLevel.thirdLevel == 3 &&
+				obj4.firstLevel.originalProp.thirdLevel == 2 &&
+				obj4.arr &&
+				obj4.arr.length == 1, 
+				'merge'
+			);
+		}
+		</script>
+		
+	<style type="text/css" media="">#highcharts-0 .highcharts-legend li {list-style:none;margin:0;padding:0 2em 0 0;font:normal 12px "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;cursor:pointer;color:#3E576F;position:relative;padding-left:21px;float:left;}
+#highcharts-0 .highcharts-legend li:hover {color:#000;}
+#highcharts-0 .highcharts-legend li.highcharts-hidden {color:#CCC;}
+.highcharts-legend-horizontal li {float:left;}
+</style></head><body>
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-7746660-4']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		</script>
+		<div style="float: left; width: 30%">
+		
+		<h4>Check specifically:</h4>
+		<ol id="checks">
+			</ol>
+		<p>9 passed tests are required</p>
+		</div>
+			
+		<div style="float: right; width: 70%">
+		<!-- 3. Add the container -->
+			<div id="container" style="height: 400px; margin: 0 auto">&nbsp;</div>
+		</div>
+		
+		<script type="text/javascript">
+			
+			fireunit = {
+				ok : function(status, name){
+					log(name + ': ' + (status ? 'ok' : 'fail'));
+				}
+			}
+			if (window.HighchartsAdapter && window.fireunit) {
+				testEach();
+				testGetAjax();
+				testGrep();
+				testHyphenate();
+				testMap();
+				testMerge();
+
+			}
+		
+		</script>
+		<a href="#" style="padding:5px 20px;border:1px solid #942;background-color:#c63;color:white;" onclick="new Effect.Move('y_mover', {x : (moved ? 0 : 150), y : 0, mode : 'absolute'});moved = !moved;return false;">Move It!</a>
+		<div style="clear:both;position:relative;">
+			<div id="y_mover" style="position:absolute;height:800px;width:800px;">
+				<div style="position:relative;">
+					<div id="container2" style="height:400px;width:400px;position:absolute;top:0;left:0;">&nbsp;</div>
+					<div id="container3" style="height:400px;width:400px;position:absolute;top:400px;left:0;">&nbsp;</div>
+				</div>
+			</div>
+		</div>
+		
+</body></html>

@@ -1,0 +1,10 @@
+{% extends "comments/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Thanks for commenting" %}.{% endblock %}
+
+{% block content %}
+	<h1>Thank you for your comment</h1>
+	<p>Please click <a href="javascript:window.history.go('-1')">THIS LINK</a> to return back.</p>
+	<p>After you refresh the page, you will see you comment.</p>
+{% endblock %}

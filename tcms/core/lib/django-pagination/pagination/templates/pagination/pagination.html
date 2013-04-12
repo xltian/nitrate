@@ -1,0 +1,44 @@
+{% if is_paginated %}
+{% load i18n %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{{ getvars }}{{ hashtag }}" class="prev">&lsaquo;&lsaquo; {% trans "Previous" %}</a>
+    {% else %}
+        <span class="disabled prev">&lsaquo;&lsaquo; {% trans "Previous" %}</span>
+    {% endif %}
+    {% for page in pages %}
+        {% if page %}
+            {% ifequal page page_obj.number %}
+                <span class="current page">{{ page }}</span>
+            {% else %}
+                <a href="?page={{ page }}{{ getvars }}{{ hashtag }}" class="page">{{ page }}</a>
+            {% endifequal %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{{ getvars }}{{ hashtag }}" class="next">{% trans "Next" %} &rsaquo;&rsaquo;</a>
+    {% else %}
+        <span class="disabled next">{% trans "Next" %} &rsaquo;&rsaquo;</span>
+    {% endif %}
+    ({{ page_obj.start_index }}-{{ page_obj.end_index }}/{{ page_obj.paginator.count }})
+    {% comment %}
+    {# Comment following code for handle the request by middleware in future #}
+    | 
+    Per page: 
+    {% ifequal 25  page_obj.object_list|length %}25
+    {% else %}
+    <a href="?{{ getvars }}{{ hashtag }}&per_page=25" class="page">25</a>
+    {% endifequal %}
+    {% ifequal 50  page_obj.object_list|length %}50
+    {% else %}
+    <a href="?{{ getvars }}{{ hashtag }}&per_page=50" class="page">50</a>
+    {% endifequal %}
+    {% ifequal 100  page_obj.object_list|length %}100
+    {% else %}
+    <a href="?{{ getvars }}{{ hashtag }}&per_page=100" class="page">100</a>
+    {% endifequal %}
+    {% endcomment %}
+</div>
+{% endif %}

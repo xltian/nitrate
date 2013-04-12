@@ -1,0 +1,92 @@
+{% extends "tcms_base.html" %}
+
+{% load split_as_option %}
+
+{% block subtitle %}Edi review{% endblock %}
+
+{% block custom_stylesheet %}
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/inplacericheditor/lib/tiny_mce/tiny_mce.js'></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testcase_actions.js'></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testreview_actions.js'></script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>> <a href="{% url tcms.apps.testplans.views.all %}">Plans</a>
+		>> <a href="{{ test_plan.get_absolute_url }}">{{ testplan.plan_id}}:{{ testplan }}</a>
+		>><a href="">Test review :{{ test_review.summary }}</a>
+		>>Edit
+	</div>
+	<h2>Edit Test Review</h2>
+	<form action="{% url tcms.apps.testreviews.views.edit testplan.plan_id %}" method="post">
+		<div class="Detailform border-1">
+			<table class="editor" cellspan="0" cellspacing="0">
+				<tr>
+					<td width="15%"><label class="strong">Summary</label></td>
+					<td>
+						<span class="name summary">{{ form.summary }}</span>
+						<div class="errors">{{ form.summary.errors }}</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="15%"><label>Product</label></td>
+					<td>{{ testplan.product.name }}</td>
+				</tr>
+				<tr>
+					<td><label>Product Version</label></td>
+					<td>{{ testplan.default_product_version }}</td>
+				</tr>
+				<tr>
+					<td><label class="strong">Build </label></td>
+					<td>{{ form.build }}<div class="errors">{{ form.build.errors }}</div></td>
+				</tr>
+				<tr>
+					<td><label>Reviewer</label></td>
+					<td>{{ form.default_reviewer }} <div class="errors">{{ form.default_reviewer.errors }}</div></td>
+				</tr>
+				<tr>
+					<td><label>Notes</label></td>
+					<td>{{ form.notes }}</td>
+				</tr>
+				<tr>
+					<td><label>Environment</label></td>
+					<td>
+						{% for env_group in testplan.env_group.all %}
+						<fieldset class="">
+							<legend>Environment Group: {{ env_group.name }}</legend>
+							<ul class="ul-no-format">
+								{% for property in env_group.property.all %}
+								<li>
+									<input type="checkbox" name="select_property_id_{{ property.id }}" checked>
+									<label class="lab-100">{{ property.name }}</label>
+									<select name="select_property_value_{{ property.id }}">
+										{% for value in property.value.all %}
+										<option value="{{ value.id }}">{{ value.value }}</option>
+										{% endfor %}
+									</select>
+								</li>
+								{% endfor %}
+							</ul>
+						</fieldset>
+						
+						{% endfor %}
+					</td>
+				</tr>
+			</table>
+			<div class="submit-row ">
+				{{ form.errors }}
+				<input type="submit" name="" value="Save">
+				<input type="button" name="cancel" value="Cancel" onclick="history.go(-1);">
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+	{% endblock %}

@@ -1,0 +1,168 @@
+{% load comments %}
+{% load redhat_urlize %}
+{% load report_tags %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>{{ testrun.summary }}</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Content-Language" content="utf-8" />
+	<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="all" />
+</head>
+<body>
+	<div class="report_title">
+	Test Log Report
+	<div class="report_sub_title"><a href='{% url tcms.apps.testruns.views.get test_run.run_id %}'>[{{ test_run.run_id }}] {{ test_run.summary}}</a></div></div>
+	<div class="report_content">
+	<div id="content">
+		<div class="listinfo_content" style="float:left; width:95%">
+			<div class="leftlistinfo">
+				<div class="listinfo">
+					<span class="title">Test Plan:</span>{{ test_run.plan.plan_id }}:{{ test_run.plan.name }}
+				</div>
+				<div class="listinfo">
+					<span class="title">Product Version:</span>{{ test_run.product_version }}
+				</div>
+				<div class="listinfo">
+					<span class="title">Manager:</span>{{ test_run.manager.email }}
+				</div>
+				<div class="listinfo">
+					<span class="title">Estimated Time:</span>{{ test_run.estimated_time }}
+				</div>
+				
+				<div class="listinfo">
+					<span class="title">Environment:</span>
+					<div class="linotype">
+							<ul>
+							{% for run_env_value in test_run.env_value.select_related.all %}
+							<li>
+								<span class="lab" >{{ run_env_value.property }}: </span>{{ run_env_value.value }}
+							</li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+			
+			</div>
+			<div class="rightlistinfo">
+				<div class="listinfo">
+					<span class="title">Product:</span>{{ test_run.build.product }}
+				</div>
+				<div class="listinfo">
+					<span class="title">Build:</span>{{ test_run.build }}
+				</div>
+				<div class="listinfo">
+					<span class="title">Default Tester:</span>
+					{% if test_run.default_tester %}
+				{{ test_run.default_tester.email }}
+				{% else %}
+				{{ test_run.default_tester }}
+				{% endif %}
+				</div>
+				<div class="listinfo">
+					<span class="title">Started at:</span>{{ test_run.start_date }}
+				</div>
+				<div class="listinfo">
+					<span class="title">Finished at:</span>{{ test_run.stop_date }}
+				</div>
+			</div>
+			<div class="listinfo">
+				<span class="title">Note:</span>{{ test_run.notes|redhat_urlize|linebreaksbr }}
+			</div>
+			<div class="clear"></div>
+		</div>
+		<div class="clear"></div>
+		<div class="table_noborder">
+	         Manual Cases<span class="red">{{test_run.case_run.get_manual_case_count|percentage:test_run.case_run.count}}({{test_run.case_run.get_manual_case_count}}/{{test_run.case_run.count}})</span>Automated Cases<span class="red">{{test_run.case_run.get_automated_case_count|percentage:test_run.case_run.count}}({{test_run.case_run.get_automated_case_count}}/{{test_run.case_run.count}})</span>Manual/Automated Cases<span class="red">{{test_run.case_run.get_both|percentage:test_run.case_run.count}}({{test_run.case_run.get_both}}/{{test_run.case_run.count}})</span></td>
+		</div>
+		{% if test_case_runs.count %}
+		
+		
+		<table	class="list border-1" cellpadding="0" cellspacing="0">
+			<tr>
+				<th class="widthID">Case-Run ID</th>
+				<th class="widthID">Case ID</th>
+				<th>Summary</th>
+				<th width="100">Mode</th>
+				<th width="100">Tested by</th>
+				<th width="150">Category</th>
+				<th width="100">Status</th>
+				<th width="160" height="25px">Closed at</th>
+			</tr>
+			{% for test_case_run in test_case_runs %}
+			<tr>
+				<td>{{ test_case_run.case_run_id }}</td>
+				<td>{{ test_case_run.case_id }}</td>
+				<td>{{ test_case_run.case.summary }}</td>
+				<td>{{ test_case_run.case.get_is_automated_status }}</td>
+				<td>{{ test_case_run.tested_by }}</td>
+				<td>{{ test_case_run.case.category }}</td>
+				<td><span class="highlight">{{ test_case_run.case_run_status.name|upper }}</span></td>
+				<td>{{ test_case_run.close_date }}</td>
+			</tr>
+			<tr>
+				<td align="left" valign="top" colspan="8" class='hide'>
+					{% if test_case_run.get_bugs %}
+					<span class='notes_title'>Bugs ID:</span>
+					{% for bug in test_case_run.get_bugs %}
+					
+					<a href="{{ bug.get_absolute_url }}">{{ bug }}</a>
+					
+					{% endfor %}
+					{% endif %}
+					
+					{% get_comment_list for test_case_run as comments %}
+					{% if comments %}
+					<h4 style='padding:0px;margin:0px'>Comments</h4>
+					<span class="notes" >
+						<ul style="margin-left:10px;" class='comment'>
+							{% for comment in comments %}
+							<li><b>{{ comment.user }}</b><span class='grey' style='margin-left:5px'>[{{ comment.submit_date }}]</span>	<br />{{ comment.comment|redhat_urlize|linebreaksbr }}</li>
+							{% endfor %}
+						</ul>
+					</span> 
+					{% endif %}
+					{% endfor %}
+				</td>
+			</tr>
+			
+		</table>
+		{% endif %}
+		<h3>Total: {{ test_case_runs.count_by_status.total }}</h3>
+		<h2>Pending test cases: {{ test_case_runs.count_by_status.IDLE }}</h2>
+		<h3>Test run completed: {{ test_case_runs.count_by_status.complete_percent|floatformat:2 }} %</h3>
+		
+	   
+		{% if test_case_run_bugs %}
+		<hr style="margin:40px auto 20px;"/>
+		<h2><a name="buglist" style="cursor:default; text-decoration:none">Bug List:</a></h2>
+		
+		<table	class="list border-1" cellpadding="0" cellspacing="0">
+			<tr>
+				<th width="150px">Bug ID</th>
+				<th>Bug Url</th>
+			</tr>
+			{% for bug in test_case_run_bugs %}
+			<tr>
+				<td>{{ bug }}</td>
+				<td><a href="{{ SETTINGS.BUGZILLA_URL }}show_bug.cgi?id={{ bug }}" >{{ SETTINGS.BUGZILLA_URL }}show_bug.cgi?id={{ bug }}</a></td>
+			</tr>
+			{% endfor %}
+			<tr>
+				<td>View all bugs</td>
+				<td><a href="{{ SETTINGS.BUGZILLA_URL }}buglist.cgi?bugidtype=include&bug_id={% for bug in test_case_run_bugs %}{{ bug }}{% if not forloop.last %},{% endif %}{% endfor %}">
+							 {{ SETTINGS.BUGZILLA_URL }}buglist.cgi?bugidtype=include&bug_id={% for bug in test_case_run_bugs %}{{ bug }}{% if not forloop.last %},{% endif %}{% endfor %}</a></td>
+			</tr>
+		</table>
+		
+		{% endif %}
+		
+		
+		
+
+	</div>
+	</div>
+</body>
+</html>

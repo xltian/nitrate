@@ -1,0 +1,46 @@
+{% extends "tcms_base.html" %}
+
+{% load extra_filters %}
+
+{% block subtitle %}Test plans{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/testplan_actions.js"></script>
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.TestPlans.List.on_load);
+</script>
+{% endblock %}
+
+{% block contents %}
+
+<!--creat plan(button)-->
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>>Products
+	</div>
+    <h2>Redhat Product</h2>
+    <div class="form">
+        <table class="list" cellpadding="0" cellspacing="0">
+            <tr>
+                <th width="70%">Product</th>
+                <th>Plans</th>
+                <th>Test Runs</th>
+            </tr>
+            <tr class="even">
+                <td>Dummy Product</td>
+                <td><a href="/plans/">105</a></td>
+                <td><a href="/runs/">1106</a></td>
+            </tr>
+        </table>
+    </div>
+            
+</div>
+{% endblock %}
+

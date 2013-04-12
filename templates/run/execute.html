@@ -1,0 +1,116 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}Execute test run - {{ test_run.summary }}{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/lib/validations.js'></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testcase_actions.js'></script>
+<script type="text/javascript" src='{{ MEDIA_URL }}/js/testrun_actions.js'></script>
+<script type="text/javascript">
+{#　Define the case_run_status array for all of case run status　#}
+Nitrate.TestRuns.CaseRunStatus = new Array();
+{% for crs in test_case_run_status %}
+Nitrate.TestRuns.CaseRunStatus.push('{{ crs.name|lower }}');
+{% endfor %}
+Nitrate.Utils.after_page_load(Nitrate.TestRuns.Execute.on_load);
+</script>
+{% endblock %}
+
+{% block content_type %}
+	<input type="hidden" name="content_type" value="testruns.testrun" />
+	<input type="hidden" name="object_pk" value="{{ test_run.pk }}" />
+	<input type="hidden" name="name" value="{{ test_run.name }}" />
+	<input type="hidden" name="description" value="{{ test_run.notes }}" />
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>> <a href="{{ test_run.plan.get_absolute_url }}" title="[{{ test_run.plan.pk }}] {{ test_run.plan.name }}">...</a>
+		>> <a href="{% url tcms.apps.testruns.views.get test_run.run_id %}">[{{ test_run.pk }}] {{ test_run.summary }}</a>
+		>> Execute
+	</div>
+	<h3><a href="{% url tcms.apps.testruns.views.get test_run.run_id %}">{{ test_run.summary }}</a></h3>
+	<fieldset name="" id="" class="option_prefer">
+		<legend class="strong">Testing Option</legend>
+		<input id="id_check_box_auto_blinddown" type="checkbox" checked=true />
+		<label for="id_check_box_auto_blinddown"> Automatically display next test case</label><br />
+		<input id="id_check_box_blinddownallcase" type="checkbox" />
+		<label for="id_check_box_blinddownallcase"> Expand all case</label><br/>
+		<input id="id_check_box_highlight" type="checkbox" />
+		<label for="id_check_box_highlight">Highligt My Assigned Runs</label>
+	</fieldset>
+	<div class="listinfo_content" style="width:70%;">
+	<div class="leftlistinfo">
+		<div class="listinfo">
+			<span class="title">Test Plan:</span> 
+			<a href="{{ test_run.plan.get_absolute_url }}">{{ test_run.plan.plan_id }} : {{ test_run.plan.name }}</a>
+		</div>
+		<div class="listinfo">
+			<span class="title">Product:</span> 
+			{{ test_run.build.product }}
+		</div>
+		<div class="listinfo">
+			<div class="title">Environment:</div>
+			<div class="linotype">
+				<ul>
+					{% for run_env_value in test_run.env_value.select_related.all %}
+					<li>{{ run_env_value.property }}: {{ run_env_value.value }}</li>
+					{% empty %}
+					<li class="grey">No environment.</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+		</div>
+		<div class="leftlistinfo">
+		<div class="listinfo">
+			<span class="title">Build:</span> 
+			 {{ test_run.build }}
+		</div>
+		<div class="listinfo">
+			<span class="title">Start Date:</span>
+			{{ test_run.start_date }}
+		</div>
+		<div class="listinfo">
+			<span class="title">Running Date:</span>
+			{{ test_run.running_date }}
+		</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div id="executeList" class="Detailform border-top"> 
+		{% for test_case_run in test_case_runs %}
+		<div class="case_run">
+			<div id="id_case_run_{{ test_case_run.pk }}" class="case_title execute_case_run run_evenRow {% if test_case_run.is_current %}is_current run_current{% endif %} {% ifequal test_case_run.assignee user%} mine {%endifequal%}">
+				<div>
+					<input type="hidden" name="case_run_id" value="{{ test_case_run.pk }}" />
+					<input type="hidden" name="case_id" value="{{ test_case_run.case_id }}" />
+					<input type="hidden" name="case_text_version" value="{{ test_case_run.case_text_version }}" />
+					
+				</div>
+				<span class="lab-20">{{ forloop.counter }}</span>
+				<div class="collapse-control">
+					<a><img class="collapse blind_icon" src="{{ MEDIA_URL }}/images/t1.gif" /></a>
+				</div>
+				<span class="lab-50">{{ test_case_run.case.priority.value }}</span>
+				<span class="lab-100" title="Case_Run ID">{{ test_case_run.case_run_id }}</span>
+				<span class="lab-50">
+					<a href="{% url tcms.apps.testcases.views.get test_case_run.case_id %}?from_plan={{ testrun.plan_id }}" title="Case ID">{{ test_case_run.case_id }}</a>
+				</span>
+				<div class="req">
+					<a class="icon_status btn_{{ test_case_run.case_run_status.name.lower }}" href="#caserun_{{ test_case_run.case_run_id }}">
+						{{ test_case_run.case.summary }}
+					</a>
+				</div>
+				<span class="lab-50_right"><span class="mark">{{ test_case_run.sortkey }}</span></span>
+			</div>
+			<div class="case_content hiddenRow border-top" style="display: none">
+				<div id="id_loading_{{ test_case_run.case.pk }}" class="ajax_loading"></div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

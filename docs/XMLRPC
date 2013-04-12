@@ -1,0 +1,97 @@
+= XML-RPC Usage Guide for Client =
+
+== Contents ==
+
+ * [#introduction Introduction]
+ * [#usage Usage]
+    * [#normal Normal deployed service]
+    * [#mod_auth_kerb mod_auth_kerb deployed service]
+
+== Introduction == #introduction
+
+XML-RPC is a remote procedure call (RPC) protocol which uses XML to encode its
+calls and HTTP as a transport mechanism.
+([http://en.wikipedia.org/wiki/XML-RPC Reference])
+
+The Nitrate the XML-RPC service is based on 
+[https://fedorahosted.org/kobo/ kobo-django] package. It provided full
+functional Web UI features that can be done in command line. In fact it's
+more powerful than Web UI, particularly relationship search(Use the *.filter()
+function)
+
+The newest APIs docs can be reference [wiki:XMLRPC-APIs], or you may need to read
+the APIs docs on your deployed Nitrate server at /xmlrpc/ path, for example:
+[http://example.com/xmlrpc/].
+
+== Usage == #usage
+
+For Nitrate we need some http transport to store the cookie, if your Nitrate is
+deployed with mod_auth_kerb, you need the transport with mod_auth_kerb
+authentication function.
+
+In this case we are provided a
+[https://fedorahosted.org/nitrate/browser/trunk/nitrate/docs/driver/python/nitrate.py python driver]
+to complete to works. It provided two classes - NitrateXmlrpc for normal
+deployment, and NitrateKerbXmlrpc for mod_auth_kerb deployment.
+
+We only provide the python programming and the driver usage guide, for other
+programming language, you may need to write by yourself or ask your system
+admin for help.
+
+'''Python driver:''' https://fedorahosted.org/nitrate/browser/trunk/nitrate/docs/driver/python/nitrate.py
+
+=== Normal deployed service === #normal
+
+It's very easy to access the Nitrate XML-RPC deployed normally. Just download
+the driver, add it to your
+[http://docs.python.org/tutorial/modules.html#the-module-search-path python path]
+. Then start your python shell and type as following:
+
+{{{
+$ python
+Python 2.6.4 (r264:75706, Apr  1 2010, 02:56:02) 
+[GCC 4.4.3 20100226 (Red Hat 4.4.3-8)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from nitrate import NitrateXmlrpc
+>>> n = NitrateXmlrpc('[username]', '[password]', '[nitrate_url]')
+>>> n.get_me() # Testing your authentication passed.
+>>> n.server.TestPlan.get(1) # All of API are accessible with n.server.* method
+}}}
+
+=== mod_auth_kerb deployed service === #mod_auth_kerb
+
+The Kerberos authentication is very useful in a company/organization internal. In
+this structure, a Key Distribution Center(KDC) server provide the authentication
+service, user send the username/password to the KDC, if the password is correct
+it will response a ticket, other programs can get the ticket and do the operations
+that the user permissive. The web service can get the ticket and do the
+authentication with Kerberos KDC with mod_auth_kerb. For more information
+please reference the
+[http://en.wikipedia.org/wiki/Kerberos_(protocol) Wikipedia].
+
+In this case, you need to configure your /etc/krb5.conf to fit KDC settings at
+first, it should ask your system/server admin will be better.
+
+Then run kinit to get your ticket, if your password passed authentication,
+nothing returns:
+
+{{{
+$ kinit
+Please enter the password for xkuang@REDHAT.COM:
+$
+}}}
+
+Latest step is same as normal deployment, download the python driver, start the
+python shell, the different is the class and the arguments is different, you only
+need to specific the Nitrate server URL will be OK:
+
+{{{
+$ python
+Python 2.6.4 (r264:75706, Apr  1 2010, 02:56:02) 
+[GCC 4.4.3 20100226 (Red Hat 4.4.3-8)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from nitrate import NitrateXmlrpc
+>>> n = NitrateXmlrpc('[nitrate_url]')
+>>> n.get_me() # Testing your authentication passed.
+>>> n.server.TestPlan.get(1) # All of API are accessible with n.server.* method
+}}}

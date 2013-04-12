@@ -1,0 +1,34 @@
+[
+   {
+      "pk":1,
+      "model":"testcases.testcasestatus",
+      "fields":{
+         "name":"PROPOSED",
+         "description":null
+      }
+   },
+   {
+      "pk":2,
+      "model":"testcases.testcasestatus",
+      "fields":{
+         "name":"CONFIRMED",
+         "description":null
+      }
+   },
+   {
+      "pk":3,
+      "model":"testcases.testcasestatus",
+      "fields":{
+         "name":"DISABLED",
+         "description":null
+      }
+   },
+   {
+      "pk":4,
+      "model":"testcases.testcasestatus",
+      "fields":{
+         "name":"NEED_UPDATE",
+         "description":null
+      }
+   }
+]

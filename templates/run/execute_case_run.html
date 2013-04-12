@@ -1,0 +1,143 @@
+{% load comments %}
+{% load redhat_urlize %}
+
+<div class="grey right-action">
+	<label class="tit" >Author:</label>
+	<a href="mailto:{{ test_case_run.case.author.email }}">{{ test_case_run.case.author}}</a>
+	<label class="tit">Tester:</label>
+	<a href="mailto:{{ test_case_run.tested_by.email }}">{{ test_case_run.tested_by }}</a>
+	<label class="tit">Assignee:</label>
+	<a href="mailto:{{ test_case_run.assignee.email }}">{{ test_case_run.assignee}}</a>
+	<label class="tit">Category:</label>
+	{{ test_case_run.case.category }}
+	<label class="tit">Status:</label>
+	<span>{{ test_case_run.case_run_status }}</span>
+</div>
+<table class="list case_detail">
+	<tr>
+		<td class="step_ul">
+			<h4>Setup:</h4>
+			{{ test_case_run.get_text_with_version.setup|safe }}
+		</td>
+		<td class="step_ul">
+			<h4>Breakdown:</h4>
+			{{ test_case_run.get_text_with_version.breakdown|safe }}
+		</td>
+		 <td valign="top" rowspan="2" width="200" class="right_panel">
+			<h4><span class="title strong">Attachment:</span></h4>
+			
+			<a href="{% url tcms.apps.testcases.views.attachment test_case_run.case_id %}?from_plan={{ testrun.plan_id }}" class="addlink" target="_blank">Add Attachment</a>
+			
+			<ul class="ul-no-format" style="display:block; margin-left:16px;">
+				{% for attachment in test_case_run.case.attachment.all %}
+				<li>
+					<a href="{% url tcms.core.files.check_file attachment.attachment_id %}">{{ attachment }}</a>
+				</li>
+				{% empty %}
+				<li class="grey">No attachment found</li>
+				{% endfor %}
+				
+			</ul>
+			<h4><span class="title strong">Component:</span></h4>
+			<ul class="ul-no-format" style="display:block; margin-left:16px;">
+				{% for component in test_case_run.case.component.all %}
+				<li>{{ component.name }}</li>
+				{% empty %}
+				<li class="grey">No component found</li>
+				{% endfor %}
+			</ul>
+			<h4><span class="title strong">Tag:</span></h4>
+			<ul class="ul-no-format" style="display:block; margin-left:16px;">
+				{% for tag in test_case_run.case.tag.all %}
+				<li>{{ tag }}</li>
+				{% empty %}
+				<li class="grey">No tag found</li>
+				{% endfor %}
+			</ul>
+			<h4><span class="title strong">Related Bug:</span></h4>
+			<a href="{% url tcms.apps.testruns.views.bug test_case_run.pk %}?a=file" target="_blank" class="buglink" title="File a bug on bugzilla">File</a>
+			<a href="#bug" class="addlink" title="Add" onclick="addCaseRunBug({{ test_case_run.run.pk }}, this.up(4).previous(), this.up(4), {{ test_case_run.case_id }}, {{ test_case_run.pk }})">Add</a>
+			<ul class="ul-no-format" style="display:block; margin-left:16px;">
+			   {% for bug in test_case_run.case.get_bugs %}
+				<li class="listyledisc"><a href="{{ bug.get_absolute_url }}">{{ bug }}</a>
+				<a href="javascript:void(0)" onclick="removeCaseRunBug({{ test_case_run.run.pk }}, this.up(4).previous(), {{ test_case_run.pk }}, {{ bug.pk }})">
+				<img src="{{ MEDIA_URL }}/images/icon_cross.png" width="12" height="12" title="remove this bug" />
+				</a>
+				</li>
+				{% empty %}
+				<li class="grey">No bug found</li>
+				{% endfor %}
+			</ul>
+		 </td>
+	</tr>
+	<tr>
+		<td class="step_ul">
+			<h4>Actions:</h4>
+			{{ test_case_run.get_text_with_version.action|safe }}
+		</td>
+		<td class="step_ul">
+			<h4>Expected Results:</h4>
+			{{ test_case_run.get_text_with_version.effect|safe }}
+		</td>
+	</tr>
+</table>
+
+<div class="row border-top border-bottom">
+	<div class="exist_comments">
+		{% get_comment_list for test_case_run as comment_list %}
+		<ul class="ul-no-format comment">
+				{% for comment in comment_list %}
+				<li>
+					<span class="strong">{{ comment.user.email }}</span>
+					<span class="grey">{{ comment.submit_date }}</span>
+					{% ifequal comment.user user %}
+					<form action="{% url tcms.core.contrib.comments.views.delete %}" method="get">
+						<input type="hidden" name="comment_id" value="{{ comment.id }}" />
+						<a class="commentdelete sprites" href="javascript:void(0)" ></a>
+					</form>
+					{% endifequal %}
+					<br/>
+					<pre>{{ comment.comment|redhat_urlize|linebreaksbr }}</pre>
+				</li>
+				{% endfor %}
+		</ul>
+	</div>
+	
+	<div class="new_comment">
+		<form class="update_form" method="POST">
+			<table cellspacing="0" cellspan="0">
+				{% get_comment_form for test_case_run as comment_form %}
+				{{ comment_form.as_table }}
+				<tr>
+					<td>
+					</td>
+					<td align="right">
+						<input type="hidden" name="type" value="html" />
+						<input type="hidden" name="field" value="case_run_status" />
+						<input type="hidden" name="case_id" value="{{ test_case_run.case.pk }}" />
+						<input type="hidden" name="assignee" value="{{ test_case_run.assignee.pk }}" />
+						<input type="hidden" name="tested_by" value="{{ test_case_run.tested_by.pk }}" />
+						<input type="hidden" name="value" value="" />
+						{% for crs in test_case_run_status %}
+						<input type="submit" class="btn btn_{{ crs.name.lower }}" value="" crs_id='{{ crs.pk }}' {% ifequal crs test_case_run.case_run_status %}disabled="True"{% endifequal %} onclick="this.form.value.value={{ crs.pk }}" />
+						{% endfor %}
+						<input type="submit" class="submit-post" value="Submit">
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+</div>
+<div class="row">
+	<label>Change Log</label>
+	<ul>
+		{% for log in test_case_run.log %}
+		<li>[{{ log.date }}] - [{{ log.who }}] - {{ log.action }}</li>
+		{% empty %}
+		<li class="grey">No log recorded.</li>
+		{% endfor %}
+	</ul>
+</div>
+{% if response %}
+<div>{{ response }}</div>
+{% endif %}

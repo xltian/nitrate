@@ -1,0 +1,88 @@
+{% extends "report/common/search_run.html" %}
+
+
+{% block report %}
+	{% if queries %}
+	<div class="queries">
+		<ul>
+		{% for k, v in queries.iteritems %}
+			<li><label>{{ k|title }}:</label>{{ v|safe }};</li>
+		{% endfor %}
+			<li class="clear"></li>
+		</ul>
+	</div>
+	{% endif %}
+
+	<div class="reportSummary01">
+		<ul>
+			<li>
+				Plan:<span>{{ plans_count }}</span>
+				Run:<span>{{ runs_count }}</span>
+				Case-Run:<span>{{ caseruns_count }}</span>
+			</li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+
+	{% for plan, builds_count, runs_count, caseruns_count, grouped_runs in reports %}
+	<div class="reportSummary01">
+		<ul><li class="tagTab">Plan: <span>{{ plan }}</span></li></ul>
+		<ul>
+			<li>Run:<span>{{ runs_count }}</span></li>
+			<li>Plan:<span>{{ plans_count }}</span></li>
+			<li>CaseRun:<span>{{ caseruns_count }}</span></li>
+		</ul>
+		<div class="clear"></div>
+	</div>
+
+	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="listTdReport">
+		<tr>
+			<th class="w200">Build</th>
+			<th>Run</th>
+			<th class="w50">Idle</th>
+			<th class="w50">Running</th>
+			<th class="w50">Paused</th>
+			<th class="w50">Passed</th>
+			<th class="w50">Failed</th>
+			<th class="w50">Blocked</th>
+			<th class="w50">Error</th>
+			<th class="w50">Waived</th>
+		</tr>
+		{% for build, runs in grouped_runs %}
+			{% for run in runs %}
+			{% ifequal tag "untagged" %}
+				<tr>
+					{% ifequal forloop.counter 1 %}
+					<td rowspan="{{runs|length}}" class="bgRowspan"><span>{{ build }}</span></td>
+					{% endifequal %}
+					<td><span>{{ run.summary }}</span></td>
+					<td>{{ run.idle_count }}</td>
+					<td>{{ run.running_count }}</td>
+					<td>{{ run.paused_count }}</td>
+					<td>{{ run.passed_count }}</td>
+					<td>{{ run.failed_count }}</td>
+					<td>{{ run.blocked_count }}</td>
+					<td>{{ run.error_count }}</td>
+					<td>{{ run.waived_count }}</td>
+				</tr>
+			{% else %}
+				<tr>
+					{% ifequal forloop.counter 1 %}
+					<td rowspan="{{runs|length}}" class="bgRowspan"><span>{{ build }}</span></td>
+					{% endifequal %}
+					<td><span>{{ run.summary }}</span></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=idle">{{ run.idle_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=running">{{ run.running_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=paused">{{ run.paused_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=passed">{{ run.passed_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=failed">{{ run.failed_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=blocked">{{ run.blocked_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=error">{{ run.error_count }}</a></td>
+					<td><a href="/caseruns/{{path_without_build}}&r_build={{build.pk}}&plan_tag={{tag}}&status=waived">{{ run.waived_count }}</a></td>
+				</tr>
+			{% endifequal %}
+			{% endfor %}
+		{% endfor %}
+	</table>
+	{% endfor %}
+{% endblock %}

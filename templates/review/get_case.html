@@ -1,0 +1,132 @@
+{% load comments %}
+<div id="id_tr_case_{{ forloop.counter }}" class="up" onclick="toggleTestCaseContents('{{ forloop.counter }}')">
+	<input type="hidden" name="case_id" value="{{ test_review_case.case.case_id }}" />
+	<span class="lab-20">{{ forloop.counter }}</span>
+	<a id="blind_link_{{ forloop.counter }}" class="lab-80" >
+		<img id="blind_icon_{{ forloop.counter }}" class="blind_link" src="{{ MEDIA_URL }}/images/t1.gif" border="0" alt="" />
+	</a>
+	<a id="id_{{ forloop.counter }}" class="blind_title_link lab-80" href="{% url tcms.apps.testcases.views.get test_review_case.case.case_id %}" >{{ test_review_case.case.case_id }}</a>
+	<a id="link_{{ forloop.counter }}" class="blind_title_link lab-300">{{ test_review_case.case.summary }}</a>
+	<span class="lab-100">{{ test_review_case.case.priority.value }}</span>
+	<span class="lab-150 actions">
+		<label>
+			{{ test_review_case.case.case_status.name|upper }}
+		</label>
+	</span>
+    <span class="lab-150">{{ test_review_case.close_date }}</span>
+    <span class="lab-150"><a href="mailto:{{ test_review_case.reviewer.email }}">{{ test_review_case.reviewer }}</a></span>
+    {% get_comment_count for test_review_case as comment_count %}
+    <span class="lab-80">{{ comment_count }}</span>
+    
+    <span class="lab-100_right">
+    <a class="editlink" href="{% url tcms.apps.testcases.views.edit test_review_case.case.case_id %}?from_plan={{ testplan.plan_id }}">Edit</a>
+    </span>
+</div>
+<div id="hidenRow_{{ forloop.counter }}"  style="display:none;" class="hide">
+	<table class="case_detail">
+		<tr>
+			<td width="40%">
+				<h4>Setup:</h4>
+				<div class="content">{{ test_review_case.get_text_with_version.setup|safe }}</div>
+			</td>
+			<td width="40%">
+				<h4>Breakdown:</h4>
+				<div class="content">{{ test_review_case.get_text_with_version.breakdown|safe }}</div>
+			</td>
+			<td rowspan="2">
+				
+                <h4>Text version :{{ test_review_case.case_text_version }}</h4>
+                <h4>Last Change :{{ test_review_case.close_date }}</h4>
+                
+				<h4><span class="title strong">Attachment:</span></h4>
+				<ul class="ul-no-format" style="margin-left:13px;">
+					{% for attachment in test_review_case.case.attachment.all %}
+					<li>
+						<a href="{% url tcms.core.files.check_file attachment.attachment_id %}" target="_blank">
+							{{ attachment.file_name }}
+						</a>
+					</li>
+					{% empty %}
+					<li class="grey">No attachment found</li>
+					{% endfor %}
+				</ul>
+				<h4 class="title strong">Component:</h4>
+				<ul class="ul-no-format" style="margin-left:13px;">
+					{% for component in test_review_case.case.component.all %}
+					<li id="display_component" >{{ component.name }}</li>
+					{% empty %}
+					<li class="grey">No component found</li>
+					{% endfor %}
+				</ul>
+				<h4 class="title strong">Tag:</h4>
+				<ul class="ul-no-format" style="margin-left:13px;">
+					{% for tag in test_review_case.case.tag.all %}
+					<li>{{ tag }}</li>
+					{% empty %}
+					<li class="grey">No tag found</li>
+					{% endfor %}
+				</ul>
+				
+			</td>
+		</tr>
+		<tr>
+			<td class="">
+				<h4>Actions:</h4>
+				<div class="content">{{ test_review_case.get_text_with_version.action|safe }}</div>
+			</td>
+			<td class="">
+				<h4>Expected Results:</h4>
+				<div class="content">{{ test_review_case.get_text_with_version.effect|safe }}</div>
+			</td>
+		</tr>
+	</table>
+	<div class="action_form right-action">
+		<span class="strong">Change to status</span>
+		<form id="id_form_case_{{ forloop.counter }}" action="{% url tcms.apps.testreviews.views.change_case_status test_review_case.review_id %}">
+			<input type="hidden" name="review_id" value="{{ test_review_case.review_id }}" />
+			<input type="hidden" name="review_case_id" value="{{ test_review_case.id }}" />
+			<input type="hidden" name="case_id" value="{{ test_review_case.case_id }}" />
+			<input type="hidden" name="index_id" value="{{ forloop.counter }}" />
+			<input type="hidden" name="case_status_id" value="{{ test_review_case.case.case_status_id }}" />
+			{% if message %}<li>{{ message }}</li>{% endif %}
+			{% for status in test_case_status %}
+			<span class="actions">
+				<input class="{{ status|lower }}" type="button" value="{{ status }}" onclick="changeReviewCaseStatus('{{ forloop.parentloop.counter }}', '{{ status.id }}')" class="{{ status }}"/>
+			</span>
+			{% endfor %}
+		</form>
+	</div>
+	<div class="row">
+		{% get_comment_form for test_review_case as comment_form %}
+		<div class="exist_comments">
+			<div>
+				<form action="{% url tcms.core.contrib.comments.views.all %}" method="get">
+					{{ comment_form.content_type }}
+					{{ comment_form.object_pk }}
+                    {% get_comment_count for test_review_case as comment_count %}
+					<a class="link_show_comments" href="javascript:void(0)">Show comments({{ comment_count }})</a>
+				</form>
+			</div>
+			<div style="display:none;">
+				<div class="ajax_loading"></div>
+			</div>
+		</div>
+		<div class="new_comment">
+			<form class="comment_form"	action="{% comment_form_target %}" method="POST">
+				<table class="comment" cellspacing="0" cellspan="0">
+					{{ comment_form.as_table }}
+					<tr>
+						<td></td>
+						<td align="left"><input type="submit" class="submit-post" value="Submit"></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+	<div class="logs">
+		<h4><a href="javascript:void(0);" onclick="showCaseLog(this.parentNode.next(), '{{ test_review_case.case_id }}')">Refresh Case Log</a></h4>
+		<div id="id_container_case_log_{{ forloop.counter }}" class="refreshlog" style="display: none;">
+			<div class="ajax_loading"></div>
+		</div>
+	</div>
+</div>

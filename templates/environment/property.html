@@ -1,0 +1,79 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}Environment properties{% endblock %}
+
+{% block custom_stylesheet %}
+
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/management_actions.js"></script>
+<script type="text/javascript">
+function getEnvURLParams()
+{
+	id = $A(arguments)[0];
+	param = new Object();
+
+	param.add_property = '{% url tcms.apps.management.views.environment_properties %}';
+	param.edit_property = '{% url tcms.apps.management.views.environment_properties %}';
+	param.del_property = '{% url tcms.apps.management.views.environment_properties %}';
+	param.modify_property = '{% url tcms.apps.management.views.environment_properties %}';
+	param.list_property_values = '{% url tcms.apps.management.views.environment_property_values %}';
+	param.add_property_value = '{% url tcms.apps.management.views.environment_property_values %}';
+	return param;
+}
+</script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a> 
+		>> <a href="{% url tcms.apps.management.views.environment_groups %}">Environment groups</a>
+		>> Environment Properties
+	</div>
+	<h2>Environment Properties</h2>
+	<div id="message" class="successlink ">{{ message }}</div>
+	<div class="Detailform border-1" style="float:left;margin-left:1%">
+	<fielset>
+		<form id="id_property_form">
+			<div class="env-list-side manage ">
+				<div class="mixbar">
+				<span class="tit">Properties</span>
+				<span class="right-action">
+					{% if perms.management.add_tcmsenvproperty %}
+					<a class="addlink" href="javascript:addEnvProperty()">Add</a>
+					{% endif %}
+					{% if perms.management.change_tcmsenvproperty %}
+					<a class="disablelink" href="#" onclick="disableEnvProperty();">Disable</a>
+					<a class="enablelink" href="#" onclick="enableEnvProperty();">Enable</a>
+					{% endif %}
+				</span>
+				</div>
+				<ul class="groupul" id="id_properties_container">
+					{% for property in properties %}
+					<li id="id_property_{{ property.id }}"  class="{% cycle 'even' 'odd'}">
+						<span class="lab" style="float:left; width:50%;">
+							<input type="checkbox" name="id" value="{{ property.id }}">
+							<a id="id_property_name_{{ property.id }}" class="{% if property.is_active %}{% else %}line-through{% endif %}" onclick="selectEnvProperty('{{ property.id }}')">{{ property.name }}</a>
+						</span>
+						{% if perms.management.change_tcmsenvproperty %}
+						<div class="right-action" >
+							<a class="editlink" href="#" onclick="editEnvProperty('{{ property.id }}')">Rename</a>
+						</div>
+						{% endif %}
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</form>
+	</fielset>
+	<fielset>
+		<div class="env-list-side" id="id_values_container">
+		</div>
+	</fielset>
+	</div>
+</div>
+</div>
+{% endblock %}
+

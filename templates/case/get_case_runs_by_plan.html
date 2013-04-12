@@ -1,0 +1,72 @@
+<td id="id_case_run_{{ forloop.counter }}" colspan="12">
+<table class="list" id="table_case_runs_by_plan" cellspacing="0" cellspan="0">
+<tbody>
+	<tr>
+		<th width="18px"></th>
+		<th class="widthID">Case Run ID</th>
+		<th class="widthID">Run ID</th>
+		<th>Run Summary</th>
+		<th width="80">Tester</th>
+		<th width="80">Assignee</th>
+		<th width="150">Close date</th>
+		<th width="100">Category</th>
+		<th width="80">Priority</th>
+		<th width="120">Text Version</th>
+		<th width="100">Status</th>
+		<th width="40">Sort</th>
+	</tr>
+{% for test_case_run in test_case_runs_by_plan %}
+		<tr id="id_tr_case_{{ forloop.counter }}" class="case_title {% cycle 'odd' 'even' %}">
+			<td class="expandable">
+				<img class="collapse blind_icon" src="{{ MEDIA_URL }}/images/t1.gif" border="0" alt="">
+				<input type="hidden" name="case" value="{{ test_case_run.case.pk }}" />
+				<input type="hidden" name="case_run" value="{{ test_case_run.pk }}" />
+				<input type="hidden" name="case_text_version" value="{{ test_case_run.case_text_version }}" />
+			</td>
+			<td class="expandable">
+				<a href="{% url tcms.apps.testcases.views.get test_case_run.case_id %}?from_plan={{ test_case_run.run.plan_id }}">{{ test_case_run.case_run_id }}</a>
+			</td>
+			<td>
+				<a href="{% url tcms.apps.testruns.views.get test_case_run.run_id %}">{{ test_case_run.run_id }}</a>
+			</td>
+			<td class="expandable">
+				<p>{# <a id="link_{{ forloop.counter }}" href="{% url tcms.apps.testruns.views.get test_case_run.run_id %}#caserun_{{ test_case_run.case_run_id }}" >{{ test_case_run.run.summary }}</a> #}
+				{{ test_case_run.run.summary }}</p>
+			</td>
+			<td>
+				{% if test_case_run.tested_by %}
+				<a href="{% url tcms.apps.profiles.views.profile test_case_run.tested_by.username %}">{{ test_case_run.tested_by }}</a>
+				{% else %}
+				<label>None</label>
+				{% endif %}
+			</td>
+			<td>
+				{% if test_case_run.assignee_id %}
+				<a href="{% url tcms.apps.profiles.views.profile test_case_run.assignee.username %}">{{ test_case_run.assignee }}</a>
+				{% else%}
+				None
+				{% endif %}
+			</td>
+			<td class="expandable">{{ test_case_run.close_date }}</td>
+			<td class="expandable">{{ test_case_run.case.category }}</td>
+			<td class="expandable">{{ test_case_run.case.priority.value }}</td>
+			<td class="expandable">{{ test_case_run.case_text_version }}</td>
+			<td>
+				<img sborder="0" alt="" class="icon_status left_float btn_{{ test_case_run.case_run_status.name|lower }}" />
+				<label class="left_float">{{ test_case_run.case_run_status.name|upper }}</label>
+			</td>
+			<td>
+				<span class="mark">
+					<a href="#" onclick="changeCaseRunOrder('{{ test_case_run.run_id }}', '{{ test_case_run.case_run_id }}', '{{ test_case_run.sortkey }}')">{{ test_case_run.sortkey }}</a>
+				</span>
+			</td>
+		</tr>
+		<tr class="case_content hide" style="display: none;">
+			<td colspan="12">
+				<div id="id_loading_{{ test_case_run.case.pk }}" class="ajax_loading"></div>
+			</td>
+		</tr>
+{% endfor %}
+</tbody>
+</table>
+</td>

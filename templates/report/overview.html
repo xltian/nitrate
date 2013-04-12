@@ -1,0 +1,90 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}Reporting - {{ product }}{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/print.css" media="print" />
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/report.js"></script>
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.Report.List.on_load);
+</script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>><a href="/report">Reporting</a>
+		>>{{ product }}
+	</div>
+	{% include 'report/nav.html' %}
+	<div class="Detailform border-1" style="background:#f1f1f1">
+		<div class="report">
+			<table class="report_tb" collspan="0" cellspacing="0" border="0">
+				<tr class="attrib_line">
+					<td  colspan="3">Testing Runs</td>
+				</tr>
+				<tr>
+					<td>Finished</td>
+					<td>{{ runs_count.finished }}</td>
+					<td>{{ runs_count.finished_percent|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>Running</td>
+					<td>{{ runs_count.running }}</td>
+					<td>{{ runs_count.running_percent|floatformat }}%</td>
+				</tr>
+				<tr class="attrib_line" >
+					<td colspan="3">Testing Cases</td>
+				</tr>
+				<tr>
+					<td>PASSED</td>
+					<td>{{ case_run_count.PASSED }}</td>
+					<td>{{ case_run_count.PASSED_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>FAILED</td>
+					<td>{{ case_run_count.FAILED }}</td>
+					<td>{{ case_run_count.FAILED_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>IDLE</td>
+					<td>{{ case_run_count.IDLE }}</td>
+					<td>{{ case_run_count.IDLE_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>ERROR</td>
+					<td>{{ case_run_count.ERROR }}</td>
+					<td>{{ case_run_count.ERROR_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>PAUSED</td>
+					<td>{{ case_run_count.PAUSED }}</td>
+					<td>{{ case_run_count.PAUSED_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>BLOCKED</td>
+					<td>{{ case_run_count.BLOCKED }}</td>
+					<td>{{ case_run_count.BLOCKED_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>RUNNING</td>
+					<td>{{ case_run_count.RUNNING }}</td>
+					<td>{{ case_run_count.RUNNING_percent|default:'0'|floatformat }}%</td>
+				</tr>
+				<tr>
+					<td>WAIVED</td>
+					<td>{{ case_run_count.WAIVED }}</td>
+					<td>{{ case_run_count.WAIVED_percent|default:'0'|floatformat }}%</td>
+				</tr>
+			</table>
+		</div>
+	
+	</div>
+</div><!--content over -->
+{% endblock %}

@@ -1,0 +1,56 @@
+<div class="leftlistinfo">
+	<div class="listinfo">
+		<div class="title"><label for="id_summary">Case Summary&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.summary }}{{ search_form.summary.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_author">Author&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.author }}{{ search_form.author.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_product">Product&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.product }}{{ search_form.product.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_plan">Plan&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.plan }}{{ search_form.plan.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_priority">Priority&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.priority }}{{ search_form.priority.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title">Automated&nbsp;:</div>
+		<div class="listinfo_input">
+			{{ search_form.is_automated }}
+			<div class="automatedlist">
+				{{ search_form.is_automated_proposed }}
+				<label>{{ search_form.is_automated_proposed.label }}</label>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="rightlistinfo">
+	<div class="listinfo">
+		<div class="title"><label for="id_category">Category&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.category }}{{ search_form.category.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_case_status">Status&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.case_status }}{{ search_form.case_status.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_component">Component&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.component }}{{ search_form.component.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_bug_id">Bug ID&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.bug_id }}{{ search_form.bug_id.errors }}</div>
+	</div>
+	<div class="listinfo">
+		<div class="title"><label for="id_tag">Tag&nbsp;:</label></div>
+		<div class="listinfo_input">{{ search_form.tag__name__in }}{{ search_form.tag__name__in.errors }}</div>
+	</div>
+	<div class="listinfo_input">{{ search_form.errors }}</div>
+</div>
+<div class="clear"></div>

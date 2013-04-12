@@ -1,0 +1,32 @@
+TCMS - Test Case Management System
+
+Introduction
+==========================================
+TCMS is a new test plan, test run and test case management system
+for company and community, it have a lot of great feature in it such
+as Bugzilla authorize system intergration, fast test plan and runs
+search, powerful access control for each plan, run and case, fully
+ajax call and more.
+
+It's based on Django web framework and testopia database schema. So
+that you can easy to port from testopia.
+
+
+Requirements
+==========================================
+Django (>=1.1)
+
+Database requirements:
+MySQL-python (>1.2.1rc1)
+python-sqlite2 (>-2.3.3)
+python-kerberos
+kobo-django
+
+Installation
+==========================================
+See INSTALL file.
+
+FAQ
+==========================================
+Q: I got 500 server error, How can I resolve it?
+A: Please contact to the maintainer of TCMS.

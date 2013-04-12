@@ -1,0 +1,257 @@
+{% extends "tcms_base.html" %}
+
+{% block subtitle %}Environments Report - {{ product }}{% endblock %}
+
+{% block custom_stylesheet %}
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}/style/report_print.css" media="print" />
+{% endblock %}
+
+{% block custom_javascript %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablesort/tablesort.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/report.js"></script>
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.Report.List.on_load);
+</script>
+{% endblock %}
+
+{% block contents %}
+<div id="content">
+	<div class="sprites crumble">
+		<a href="{% url tcms.core.views.index %}">Home</a>
+		>>Report
+	</div>
+	{% include 'report/nav.html' %}
+	<div class="Detailform border-1" style="border-top:none;background:#f1f1f1 ;">
+		<div class="crumb">
+			<span class="right-action"> <label class="select">report</label> | <label class="">dashboard </label></span>
+		</div>
+		<div class="report">
+			<h2>ENV GROUP : Desktop</h2>
+			<div class="page_control">
+				Select : 
+				<select>
+					<option>Desktop</option>
+					<option>virt</option>
+				</select>
+			</div>
+			<!--filter of data report -->
+			<fieldset class="filter">
+				<legend>Filter</legend>
+				<div class="option_row">
+					<span class="lab"><label>Test Run</label></span>
+					<select>
+						<option>All</option>
+						<option>Running</option>
+						<option>Finished</option>
+					</select>
+				</div>
+				<div class="option_row">
+					<span class="lab"><label>Case Category</label></span>
+					<select>
+						<option>Defult</option>
+						<option>Regression</option>
+						<option>Feature</option>
+						<option>Bug verification</option>
+					</select>
+				</div>
+				<div class="apply_row">
+					<a class="applylink"><a>Apply</a></a>
+				</div>
+			</fieldset>
+			<!--end of filter of data report -->
+			<!--data of status of caserun -->
+			
+			<table class="report_data report" border="0" cellspacing="1" cellpadding="0" width="75%">
+				<tr>
+					<td width="15%">
+						<h3>CPU</h3>
+					</td>
+					<td>
+						TESTED
+					</td>
+					<td>
+						PASSED
+					</td>
+					<td>
+						FAILED
+					</td>
+					<td>
+						ERROR
+					</td>
+					<td>
+						BLOCKED
+					</td>
+					<td>
+						RUNNING
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Intel
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						24
+					</td>
+					<td>
+						45
+					</td>
+					<td>
+						0
+					</td>
+					<td>
+						0
+					</td>
+				</tr>
+				<tr>
+					<td>
+						AMD
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						24
+					</td>
+					<td>
+						45
+					</td>
+					<td>
+						0
+					</td>
+					<td>
+						0
+					</td>
+				</tr>
+			</table>
+			
+			<!--end data of status of caserun -->
+			<!--data of status of caserun -->
+			
+			<table class="report_data report" border="0" cellspacing="1" cellpadding="0" width="75%">
+				<tr>
+					<td width="15%">
+						<h3>CPU</h3>
+					</td>
+					<td>
+						TESTED
+					</td>
+					<td>
+						PASSED
+					</td>
+					<td>
+						FAILED
+					</td>
+					<td>
+						ERROR
+					</td>
+					<td>
+						BLOCKED
+					</td>
+					<td>
+						RUNNING
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Intel
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						24
+					</td>
+					<td>
+						45
+					</td>
+					<td>
+						0
+					</td>
+					<td>
+						0
+					</td>
+				</tr>
+				<tr>
+					<td>
+						AMD
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						123
+					</td>
+					<td>
+						24
+					</td>
+					<td>
+						45
+					</td>
+					<td>
+						0
+					</td>
+					<td>
+						0
+					</td>
+				</tr>
+			</table>
+			
+			<!--end data of status of caserun -->
+		</divs>
+		<div class="page_control">
+				Select : 
+				<select>
+					<option>Desktop</option>
+					<option>Virt</option>
+				</select>
+			</div>
+		</div>
+		<table class="list report" border="0" cellspacing="0" cellpadding="0" width="100%">
+			<tr>
+				<th width="20%">Environment Group</th>
+				<th width="35%">Plans</th>
+				<th width="35%">Runs</th>
+			</tr>
+			<tr>
+				<td class="variety_0">
+					<a href="/tt/report/caserun.html">Desktop</a>
+				</td>
+				<td class="variety_1">
+					<span class="">123</span>
+				</td>
+				<td class="variety_4">
+					<div class="progress-bar">
+						<div class="progress-inner" style="width:54px">
+						</div>
+					</div>
+					<span class="">54% Finished</span>
+				</td>
+			</tr>
+			<tr>
+				<td class="variety_0"><a href="/tt/report/caserun.html">Virt</a></td>
+				<td class="variety_3">
+					<span class="">123</span>
+				</td>
+				<td class="variety_4">
+					<div class="progress-bar">
+					</div>
+					<span class="">54% Finished</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div><!--content over -->
+{% endblock %}

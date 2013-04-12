@@ -1,0 +1,51 @@
+{% load ifin %}<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE testopia SYSTEM "testopia.dtd" [
+<!ENTITY testopia_lt "<">
+<!ENTITY testopia_gt ">">
+]>
+<testopia version="1.1">
+    {% if test_plans %}
+    {% for test_plan in test_plans %}
+    {% for test_case in test_cases %}
+    {% ifin test_case.pk test_plan.case_list %}
+    <testcase author="{{ test_case.author.email }}" priority="{{ test_case.priority }}" automated="{{ test_case.get_automate }}" status="{{ test_case.case_status }}">
+        <summary>{{ test_case.summary }}</summary>
+        <categoryname>{{ test_case.category }}</categoryname>
+        {% for component in test_case.component.all %}
+        <component product="{{ component.product }}">{{ component }}</component>
+        {% endfor %}
+        <defaulttester>{{ test_case.default_tester.email }}</defaulttester>
+        <notes>{{ test_case.notes }}</notes>
+        <testplan_reference type="Xml_description">{{ test_plan.name }}</testplan_reference>
+        <action>{{ test_case.latest_text.action }}</action>
+        <expectedresults>{{ test_case.latest_text.effect }}</expectedresults>
+        <setup>{{ test_case.latest_text.setup }}</setup>
+        <breakdown>{{ test_case.latest_text.breakdown }}</breakdown>
+        {% for tag in test_case.tag.all %}
+        <tag>{{ tag.name }}</tag>
+        {% endfor %}
+    </testcase>
+    {% endifin %}
+    {% endfor %}
+    {% endfor %}
+    {% else %}
+    {% for test_case in test_cases %}
+    <testcase author="{{ test_case.author.email }}" priority="{{ test_case.priority }}" automated="{{ test_case.get_automate }}" status="{{ test_case.case_status }}">
+        <summary>{{ test_case.summary }}</summary>
+        <categoryname>{{ test_case.category }}</categoryname>
+        {% for component in test_case.component.all %}
+        <component product="{{ component.product }}">{{ component }}</component>
+        {% endfor %}
+        <defaulttester>{{ test_case.default_tester.email }}</defaulttester>
+        <notes>{{ test_case.notes }}</notes>
+        <action>{{ test_case.latest_text.action }}</action>
+        <expectedresults>{{ test_case.latest_text.effect }}</expectedresults>
+        <setup>{{ test_case.latest_text.setup }}</setup>
+        <breakdown>{{ test_case.latest_text.breakdown }}</breakdown>
+        {% for tag in test_case.tag.all %}
+        <tag>{{ tag.name }}</tag>
+        {% endfor %}
+    </testcase>
+    {% endfor %}
+    {% endif %}
+</testopia>

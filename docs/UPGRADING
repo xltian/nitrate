@@ -1,0 +1,58 @@
+How to upgrade from 1.0 to 2.0
+==============================
+
+KNOWN ISSUE:
+------------
+For the rewritten authorization backend, the user may should clear cookie to
+use.
+
+New requirements:
+=================
+Place following package to TCMS repos then run yum install
+python-hashlib - https://
+
+Steps:
+======
+1. Stop web service
+-------------------
+$ sudo service httpd stop
+
+2. Install package
+------------------
+$ rpm -Uvh nitrate-2.0-1RC.svn2370.noarch.rpm
+
+3. Modify database schema
+-------------------------
+$ mysql -u nitrate_devel -p testopia < /usr/lib/python2.4/site-package/tcms/Documents/mysql_initial.sql
+
+4. Syncdb
+---------
+$ export DJANGO_SETTINGS_MOUDLE=tcms.product_settings
+$ django-admin syncdb
+
+* IGNORE the duplicate index key error
+
+5. Start up build-in web service and re-create the user groups.
+---------------------------------------------------------------
+* Change FIRST_RUN in product_settings.py to True
+
+$ django-admin runserver `hostname`:8080
+
+* Use your web browser to access the URL like following:
+http://[server_addresss]:8080/upgrade
+
+* Then interrupt the service with CTRL + C.
+
+* Restore FIRST_RUN in product_settings.py to False
+
+6. Apply the patch to product_settings
+--------------------------------------
+$ cd /usr/lib/python2.4/site-package/tcms/
+$ patch -p0 < product_settings.py.patch # It may does not work, so need to apply by hand
+$ cp tcms.pth  /usr/lib/python2.4/site-package/
+
+7. Start httpd
+--------------
+$ sudo service httpd start
+
+Completed !

@@ -1,0 +1,23 @@
+<p>
+<a href="{% url tcms.install.port_users %}">Click HERE to continue to port users from profiles table to auth_user table.</a>
+<p>
+
+<p>REPORT:</p>
+
+{% if tester_group %}
+Create tester group successful with following permissions:
+<ul>
+{% for permission in tester_group.permissions.all %}
+<li>{{ permission.name }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if admin_group %}
+Create administrator group successful with following permissions:
+{% for permission in admin_group.permissions.all %}
+<ul>
+<li>{{ permission.name }}</li>
+</ul>
+{% endfor %}
+{% endif %}

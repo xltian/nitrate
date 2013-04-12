@@ -1,0 +1,14 @@
+{% load pagination_tags %}
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablekit/fastinit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/lib/tablekit/tablekit.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}/js/testplan_actions.js"></script>
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+<script type="text/javascript" src="{{ ADMIN_MEDIA_PREFIX }}js/core.js"></script>
+<script type="text/javascript" src="{{ ADMIN_MEDIA_PREFIX }}js/calendar.js"></script>
+<script type="text/javascript" src="{{ ADMIN_MEDIA_PREFIX }}js/admin/DateTimeShortcuts.js"></script>
+
+<script type="text/javascript">
+Nitrate.Utils.after_page_load(Nitrate.TestPlans.Advance_Search_List.on_load);
+</script>
+
+{% include 'plan/common/plans_advance_filtered.html' %}

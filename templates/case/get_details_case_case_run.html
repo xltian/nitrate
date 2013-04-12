@@ -1,0 +1,29 @@
+{% load comments %}
+{% load redhat_urlize %}
+{% get_comment_list for test_case_run as case_run_comments %}
+<td colspan='12'>
+	<h4>Notes:</h4>
+	{{ test_case_run.notes|redhat_urlize|linebreaksbr }}
+	<h4>Comments:</h4>
+	<ul class="comment ul-no-format">
+		{% for comment in case_run_comments %}
+		<li>
+			<span class="strong">#{{ forloop.counter }}</span>
+			<span class="strong">{{ comment.user.email }}</span>
+			<span class="grey">{{ comment.submit_date }}</span><br/>
+			{{ comment.comment|redhat_urlize|linebreaksbr }} 
+		</li>
+		{% empty %}
+		<li class="grey" style='border:none;margin:0px;padding:0px'>No comments found.</li>
+		{% endfor %}
+	</ul>
+
+	<h4>Change Log:</h4>
+	<ul>
+		{% for log in test_case_run.log %}
+		<li>[{{ log.date }}] - [{{ log.who }}] - {{ log.action }}</li>
+		{% empty %}
+		<li class="grey">No log found.</li>
+		{% endfor %}
+	</ul>
+</td>
