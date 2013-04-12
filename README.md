@@ -41,6 +41,10 @@ You can ssh into the app, get the variable value for $OPENSHIFT_MYSQL_DB_HOST:$O
 
     git clone git@github.com:xuanjia/nitrate.git
 
+And copy the source code to the app.
+
+    [root@test12 ~]# cp -rf nitrate/* tc/
+
 ### 4.Edit tcms/settings.py
 
 Modify these items:
