@@ -38,10 +38,10 @@ MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'mysql'     # 'postgresql_psycopg2', 'postgresql',
                                 # 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'nitrate'        # Or path to database file if using sqlite3.
-DATABASE_USER = 'adminsTPDLiW'              # Not used with sqlite3.
-DATABASE_PASSWORD = 'zgF4ncxBtyjC'          # Not used with sqlite3.
-DATABASE_HOST = '127.8.222.1'              # Set to empty string for localhost.
+DATABASE_NAME = 'datatbase'        # Or path to database file if using sqlite3.
+DATABASE_USER = 'user'              # Not used with sqlite3.
+DATABASE_PASSWORD = 'password'          # Not used with sqlite3.
+DATABASE_HOST = 'ipaddress'              # Set to empty string for localhost.
                                 # Not used with sqlite3.
 DATABASE_PORT = '3306'              # Set to empty string for default.
                                 # Not used with sqlite3.
