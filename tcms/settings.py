@@ -39,12 +39,17 @@ MANAGERS = ADMINS
 DATABASE_ENGINE = 'mysql'     # 'postgresql_psycopg2', 'postgresql',
                                 # 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = 'datatbase'        # Or path to database file if using sqlite3.
-DATABASE_USER = 'user'              # Not used with sqlite3.
-DATABASE_PASSWORD = 'password'          # Not used with sqlite3.
-DATABASE_HOST = 'ipaddress'              # Set to empty string for localhost.
+#DATABASE_USER =               # Not used with sqlite3.
+#DATABASE_PASSWORD = 'password'          # Not used with sqlite3.
+#DATABASE_HOST = 'ipaddress'              # Set to empty string for localhost.
                                 # Not used with sqlite3.
-DATABASE_PORT = '3306'              # Set to empty string for default.
-                                # Not used with sqlite3.
+#DATABASE_PORT = '3306'              # Set to empty string for default.
+                               # Not used with sqlite3.
+
+DATABASE_USER = os.environ['OPENSHIFT_MYSQL_DB_USERNAME']              # Not used with sqlite3.
+DATABASE_PASSWORD = os.environ['OPENSHIFT_MYSQL_DB_PASSWORD']          # Not used with sqlite3.
+DATABASE_HOST =  os.environ['OPENSHIFT_MYSQL_DB_HOST']              # Set to empty string for localhost.
+DATABASE_PORT = os.environ['OPENSHIFT_MYSQL_DB_PORT']  
 
 DATABASE_OPTIONS = {}
 AUTH_USER_MODEL='auth.User'
@@ -215,7 +220,7 @@ DEBUG_LEVEL = 0
 
 # Needed by django.core.context_processors.debug:
 # See http://docs.djangoproject.com/en/dev/ref/templates/api/#django-core-context-processors-debug
-INTERNAL_IPS = ('127.8.222.1', )
+INTERNAL_IPS = (os.environ['OPENSHIFT_PYTHON_IP'], )
 
 #
 # Plugins
@@ -241,7 +246,7 @@ EMAIL_PORT = 25
 EMAIL_FROM = 'noreply@foo.com'
 EMAIL_SUBJECT_PREFIX = '[TCMS] '
 
-EMAILS_FOR_DEBUG = ['ctang@redhat.com',]
+EMAILS_FOR_DEBUG = ['xtian@redhat.com',]
 
 # TCMS email behavior settings
 PLAN_EMAIL_TEMPLATE = 'mail/change_plan.txt'
@@ -317,6 +322,6 @@ KRB5_REALM = ''
 
 # Integration with Errata system, used to linkify the Errata ID
 # A valid Errata URL:
-ERRATA_URL_PREFIX = 'http://www.redhat.com'
+ERRATA_URL_PREFIX = ''
 # user guide url:
-USER_GUIDE_URL = 'https://www.redhat.com/TCMS-User_Guide/index.html'
+USER_GUIDE_URL = ''
